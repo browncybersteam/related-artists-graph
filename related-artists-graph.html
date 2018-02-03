@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>Music Search Engine</title>
+    <!-- for getting our API token -->
+    <script
+  src="http://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+    <!-- the main wrapper we're using to interface with the spotify API -->
+    <script src="spotify-web-api.js">
+    </script>
+    <!-- d3 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+    <!-- font from google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Oxygen" rel="stylesheet">
+    <link rel="stylesheet" href="related-artists-graph-styles.css">
+</head>
+<body style="background-color:rgb(250, 253, 255)">
+    <div class="entry-text">
+        <label for="fname">Enter An Artist</label>
+        <input type="text" id="fartist">
+    </div>
+    <div class="chart"></div>
+    <script src="related-artists-graph.js"></script>
+</body>
+</html>
