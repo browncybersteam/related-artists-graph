@@ -242,7 +242,7 @@ function calc_child_x_position(parent_x, i, num_steps) {
  * @param num_steps: the number of other children sharing the same parent.
  * @return: the y position of the child.
  */
-function calc_child_y_position(parent_y, i) {
+function calc_child_y_position(parent_y, i, num_steps) {
   return parent_y + 200.0 * Math.sin(i * (2 * Math.PI / num_steps));
 }
 
