@@ -56,7 +56,7 @@ $.ajax({
  *  @spotify_url: the url for the artist's spotify page.
  *  @img_url: a url for a display image of the artist.
  *  @popularity: the artist's popularity index, according to Spotify.
- *  @depth: the number of links away from the artist in focus.
+ *  @depth: the number of link_data away from the artist in focus.
  *  @x: the node's x position, referenced by the center of the node.
  *  @y: the node's y position, referenced by the center of the node.
  */
@@ -78,7 +78,17 @@ default_artist = 'radiohead';
 /*
  * Default depth of the graph.
  */
-default_depth = 3;
+default_depth = 2;
+
+/*
+ * Width and height of the window, with vanilla js.
+ */
+width = window.innerWidth
+ || document.documentElement.clientWidth
+ || document.body.clientWidth;
+height = window.innerHeight
+ || document.documentElement.clientHeight
+ || document.body.clientHeight;
 
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
@@ -116,7 +126,7 @@ function main() {
  * @param center_artist_id: the id of the artist that the graph building
  * begins with, i.e. the initial center of the graph.
  * @param args: a generic object that will contain:
- *    @depth: how many links away from the center artist to flesh out the
+ *    @depth: how many link_data away from the center artist to flesh out the
  *    graph with.
  */
 function build_data_graph(center_artist_id, args) {
@@ -126,8 +136,8 @@ function build_data_graph(center_artist_id, args) {
   load_first_artist(center_artist_id);
   load_related_artists(center_artist_id, depth, 0);
   // HACK: use a timeout to ensure that all the data is loaded.
-  setTimeout(function() {console.log(nodes)}, 3000)
-  setTimeout(function() {console.log(links)}, 3000)
+  setTimeout(function() {console.log(node_data)}, 3000)
+  setTimeout(function() {console.log(link_data)}, 3000)
 }
 
 /*
@@ -139,7 +149,8 @@ function load_first_artist(artist_id) {
   s.getArtist(artist_id, function (err, data) {
       if (err) { console.error(err); }
       var idx = node_data.length;
-      dataNodes[idx] = {
+      console.log(data);
+      node_data[idx] = {
         id: data.id,
         name: data.name,
         spotify_url: data.external_urls.spotify,
@@ -157,31 +168,35 @@ function load_first_artist(artist_id) {
  *
  * @param parent_artist_id: ID of the parent artist of the related artists
  * being loaded.
- * @param max_depth: maximum number of links away from center artist to
+ * @param max_depth: maximum number of link_data away from center artist to
  * allow for.
  * @param parent_depth: depth of the parent node of this node.
  */
 function load_related_artists(parent_artist_id, max_depth, parent_depth) {
   if (parent_depth < max_depth) {
     s.getArtistRelatedArtists(parent_artist_id, function(err, data) {
-      if (err) { console.error(err); }
-      for (i = 0; i < data.artists.length; i++) {
-        var idx = node_data.length;
-        dataNodes[idx] = {
-          id: data.id,
-          name: data.name,
-          spotify_url: data.external_urls.spotify,
-          img_url: data.images[0].url,
-          popularity: data.popularity,
-          depth: parent_depth + 1,
-          x: width / 2,
-          y: height / 2,
-        };
-        dataLinks[dataLinks.length] = {
-          id: parent_artist_id + ":" + data.id,
-          endpoints: (parent_artist_id, data.id)
-        };
-        load_related_artists(data.artists[i].id, max_depth, parent_depth + 1);
+      if (err) {
+        console.error(err);
+      } else {
+        for (i = 0; i < data.artists.length; i++) {
+          artist_data = data.artists[i]
+          idx = node_data.length;
+          node_data[idx] = {
+            id: artist_data.id,
+            name: artist_data.name,
+            spotify_url: artist_data.external_urls.spotify,
+            img_url: artist_data.images[0].url,
+            popularity: artist_data.popularity,
+            depth: parent_depth + 1,
+            x: width / 2,
+            y: height / 2,
+          };
+          link_data[link_data.length] = {
+            id: parent_artist_id + ":" + artist_data.id,
+            endpoints: (parent_artist_id, artist_data.id)
+          };
+          load_related_artists(artist_data.id, max_depth, parent_depth + 1);
+        }
       }
     });
   }
