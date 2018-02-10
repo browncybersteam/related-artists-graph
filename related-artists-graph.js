@@ -53,7 +53,7 @@ function main() {
     document.getElementById('fartist').onkeypress = enterKeyPressedOnTextbox;
     // One other parameter for our visualization determines how
     // fast (or slow) the animation executes. It's a time value
-    
+
     // build the graph
     buildGraph();
 
@@ -99,12 +99,6 @@ function initForce() {
         .attr('cy', function(d) { return d.y; });
     // call the step function at each iteration
     force.on('tick', stepForce);
-    console.log(dataNodes)
-    console.log(dataLinks)
-    for (i in nodeIdsToIdxs) {
-        console.log(dataNodes[nodeIdsToIdxs[i]]);
-    }
-    console.log(Object.keys(nodeIdsToIdxs).length);
     force.start();
 }
 
@@ -151,6 +145,7 @@ function addRelatedToGraph(artistID, args) {
     if (args.depth > 0) {
         s.getArtistRelatedArtists(artistID, function(err, data) {
             if (err) { console.error(err); }
+            console.log(data);
             for (i = 0; i < data.artists.length / 3; i++) {
                 var idx = dataNodes.length;
                 dataNodes[idx] = {
