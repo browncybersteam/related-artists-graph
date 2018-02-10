@@ -197,7 +197,8 @@ function load_related_artists(parent_artist_id, max_depth,
           };
           link_data[link_data.length] = {
             id: parent_artist_id + ":" + artist_data.id,
-            endpoints: [parent_artist_id, artist_data.id]
+            source: parent_artist_id,
+            target: artist_data.id
           };
           load_related_artists(artist_data.id, max_depth,
             node_data[idx].depth, node_data[idx].x, node_data[idx].y);
@@ -258,21 +259,35 @@ function calc_child_y_position(parent_y, i, num_steps) {
 // adapted from http://bl.ocks.org/sxywu/9358409
 
 var nodes, links, oldNodes, // data
-    svg, node, link, // d3 selections
+    svg, node, link; // d3 selections
+
+    /*
     force = d3.layout.force()
     .charge(-300)
     .linkDistance(50)
     .size([width, height]);
+    */
+var simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(function(d) { return d.id }))
+            .force("collide",d3.forceCollide( function(d){return 1/d.depth * 10 }).iterations(16) )
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("y", d3.forceY(0))
+            .force("x", d3.forceX(0))
 
 function render() {
-    force.nodes(node_data).links(link_data);
+    simulation.nodes(node_data)
+      .on("tick", stepForce);
+    simulation.force("link")
+      .links(link_data);
 
-    svg = d3.select("body").append("svg")
+    svg = d3.select("#graph").append("svg")
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .attr("fill", "red");
 
     var l = svg.selectAll(".link")
-      .data(link_data, function (d) { return d.endpoints[0] + ',' + d.endpoints[1]; });
+      .data(link_data);
     var n = svg.selectAll(".node")
       .data(node_data);
 
@@ -282,8 +297,8 @@ function render() {
     link = svg.selectAll(".link");
     node = svg.selectAll(".node");
 
-    force.on('tick', stepForce);
-    force.start();
+    //force.on('tick', stepForce);
+    //force.start();
 }
 
 function enterNodes(n) {
@@ -293,8 +308,7 @@ function enterNodes(n) {
   g.append("circle")
     .attr("cx", 0)
     .attr("cy", 0)
-    .attr("r", function(d) {return d.depth * 10})
-    .call(force.drag);
+    .attr("r", function(d) {return d.depth * 10});
 
   g.append("text")
     .attr("x", function(d) {return d.depth * 10 + 5}) //?????
@@ -316,10 +330,10 @@ function exitLinks(l) {
 }
 
 function update() {
-  force.nodes(node_data).links(link_data);
+  //force.nodes(node_data).links(link_data);
 
   var l = svg.selectAll(".link")
-    .data(link_data, function (d) { return d.endpoints[0] + ',' + d.endpoints[1]; });
+    .data(link_data);
   var n = svg.selectAll(".node")
     .data(node_data);
 
@@ -332,7 +346,7 @@ function update() {
   node = svg.selectAll(".node");
   node.select("circle").attr("r", function(d) {return d.depth * 10});
 
-  force.start();
+  //force.start();
 }
 
 function stepForce() {
