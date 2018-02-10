@@ -257,14 +257,12 @@ function calc_child_y_position(parent_y, i, num_steps) {
 
 // adapted from http://bl.ocks.org/sxywu/9358409
 
-// set width and height 
-
 var nodes, links, oldNodes, // data
     svg, node, link, // d3 selections
     force = d3.layout.force()
     .charge(-300)
     .linkDistance(50)
-    .size([width, height]); 
+    .size([width, height]);
 
 function render() {
     force.nodes(node_data).links(link_data);
