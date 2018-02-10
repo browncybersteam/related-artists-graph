@@ -182,7 +182,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        for (i = 0; i < data.artists.length; i++) {
+        for (i = 0; i < data.artists.length/5; i++) {
           artist_data = data.artists[i]
           idx = node_data.length;
           node_data[idx] = {
@@ -192,8 +192,8 @@ function load_related_artists(parent_artist_id, max_depth,
             img_url: artist_data.images[0].url,
             popularity: artist_data.popularity,
             depth: parent_depth + 1,
-            x: calc_child_x_position(parent_x, i, data.artists.length),
-            y: calc_child_y_position(parent_y, i, data.artists.length),
+            x: calc_child_x_position(parent_x, i, data.artists.length/5, parent_depth + 1),
+            y: calc_child_y_position(parent_y, i, data.artists.length/5, parent_depth + 1),
           };
           link_data[link_data.length] = {
             id: parent_artist_id + ":" + artist_data.id,
@@ -231,8 +231,8 @@ function get_artist_id(artist_name, callback, args) {
  * @param num_steps: the number of other children sharing the same parent.
  * @return: the x position of the child.
  */
-function calc_child_x_position(parent_x, i, num_steps) {
-  return parent_x + 200.0 * Math.cos(i * (2 * Math.PI / num_steps));
+function calc_child_x_position(parent_x, i, num_steps, depth) {
+  return parent_x + 200.0 / depth * Math.cos(i * (2 * Math.PI / num_steps));
 }
 
 /*
@@ -244,8 +244,8 @@ function calc_child_x_position(parent_x, i, num_steps) {
  * @param num_steps: the number of other children sharing the same parent.
  * @return: the y position of the child.
  */
-function calc_child_y_position(parent_y, i, num_steps) {
-  return parent_y + 200.0 * Math.sin(i * (2 * Math.PI / num_steps));
+function calc_child_y_position(parent_y, i, num_steps, depth) {
+  return parent_y + 200.0 / depth * Math.sin(i * (2 * Math.PI / num_steps));
 }
 
 /******************************************************************************/
@@ -267,13 +267,13 @@ var nodes, links, oldNodes, // data
     .linkDistance(50)
     .size([width, height]);
     */
-var simulation = d3.forceSimulation()
+var simulation = d3.forceSimulation(node_data)
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("collide",d3.forceCollide( function(d){return 1/d.depth * 10 }).iterations(16) )
+            .force("collide",d3.forceCollide( function(d){return 1/(1 + d.depth) * 50 + 20}).iterations(16) )
             .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter())
-            .force("y", d3.forceY(0))
-            .force("x", d3.forceX(0));
+            .force("center", d3.forceCenter(100, 100))
+            .force("y", d3.forceY(100))
+            .force("x", d3.forceX(100));
 //g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 //node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 
@@ -285,7 +285,7 @@ function render() {
 
     svg = d3.select("#graph").append("svg")
       .attr("width", width)
-      .attr("height", height)
+      .attr("height", height + 500)
       .attr("class", "graph-svg-component");
 
     var l = svg.selectAll(".link")
@@ -310,7 +310,7 @@ function enterNodes(n) {
   g.append("circle")
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; })
-    .attr("r", function(d) {return d.depth * 10});
+    .attr("r", function(d) {return 1/(1 + d.depth) * 50});
 
   g.append("text")
     .attr("x", function(d) { return d.x + 5 }) //?????
@@ -324,8 +324,12 @@ function exitNodes(n) {
 }
 
 function enterLinks(l) {
-  l.enter().insert("line", ".node")
-    .attr("class", "link");
+  l.enter().append("line")
+    .attr("class", "link")
+    .attr('x1', function(d) { return d.source.x; })
+    .attr('y1', function(d) { return d.source.y; })
+    .attr('x2', function(d) { return d.target.x; })
+    .attr('y2', function(d) { return d.target.x; });
 }
 
 function exitLinks(l) {
@@ -347,18 +351,21 @@ function update() {
 
   link = svg.selectAll(".link");
   node = svg.selectAll(".node");
-  node.select("circle").attr("r", function(d) {return d.depth * 10});
+  node.select("circle").attr("r", function(d) {return 1/(1 + d.depth) * 50});
 
   //force.start();
 }
 
 function stepForce() {
-  link.attr("x1", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[0]}).x; })
-      .attr("y1", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[0]}).y; })
-      .attr("x2", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[1]}).x; })
-      .attr("y2", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[1]}).y; });
+  link.attr('x1', function(d) { return d.source.x; })
+    .attr('y1', function(d) { return d.source.y; })
+    .attr('x2', function(d) { return d.target.x; })
+    .attr('y2', function(d) { return d.target.x; });
 
-  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  node
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+  //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 }
 /******************************************************************************/
 /**************************** END GRAPH RENDERING *****************************/
