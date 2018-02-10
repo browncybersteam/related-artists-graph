@@ -104,6 +104,7 @@ height = window.innerHeight
  */
 function main() {
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
+  setTimeout(render, 5000);
 }
 
 /******************************************************************************/
@@ -257,12 +258,6 @@ function calc_child_y_position(parent_y, i, num_steps) {
 // adapted from http://bl.ocks.org/sxywu/9358409
 
 // set width and height 
-var width = window.innerWidth
-|| document.documentElement.clientWidth
-|| document.body.clientWidth;
-var height = window.innerHeight
-|| document.documentElement.clientHeight
-|| document.body.clientHeight;
 
 var nodes, links, oldNodes, // data
     svg, node, link, // d3 selections
