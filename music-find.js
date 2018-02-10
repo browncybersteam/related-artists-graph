@@ -134,7 +134,7 @@ function build_data_graph(center_artist_id, args) {
   // the procedure for loading the first artist is different than loading
   // the related artists
   load_first_artist(center_artist_id);
-  load_related_artists(center_artist_id, depth, 0);
+  load_related_artists(center_artist_id, depth, 0, width/2, height/2);
   // HACK: use a timeout to ensure that all the data is loaded.
   setTimeout(function() {console.log(node_data)}, 3000)
   setTimeout(function() {console.log(link_data)}, 3000)
@@ -171,8 +171,11 @@ function load_first_artist(artist_id) {
  * @param max_depth: maximum number of link_data away from center artist to
  * allow for.
  * @param parent_depth: depth of the parent node of this node.
+ * @param parent_x: the parent's x position
+ * @param parent_y: the parent's y position
  */
-function load_related_artists(parent_artist_id, max_depth, parent_depth) {
+function load_related_artists(parent_artist_id, max_depth,
+  parent_depth, parent_x, parent_y) {
   if (parent_depth < max_depth) {
     s.getArtistRelatedArtists(parent_artist_id, function(err, data) {
       if (err) {
@@ -188,14 +191,15 @@ function load_related_artists(parent_artist_id, max_depth, parent_depth) {
             img_url: artist_data.images[0].url,
             popularity: artist_data.popularity,
             depth: parent_depth + 1,
-            x: width / 2,
-            y: height / 2,
+            x: calc_child_x_position(parent_x, i, data.artists.length),
+            y: calc_child_y_position(parent_y, i, data.artists.length),
           };
           link_data[link_data.length] = {
             id: parent_artist_id + ":" + artist_data.id,
-            endpoints: (parent_artist_id, artist_data.id)
+            endpoints: [parent_artist_id, artist_data.id]
           };
-          load_related_artists(artist_data.id, max_depth, parent_depth + 1);
+          load_related_artists(artist_data.id, max_depth,
+            node_data[idx].depth, node_data[idx].x, node_data[idx].y);
         }
       }
     });
@@ -214,6 +218,32 @@ function get_artist_id(artist_name, callback, args) {
         if (err) { console.error(err); }
         else { callback(data.artists.items[0].id, args); }
     });
+}
+
+/*
+ * Calculates a node's x position, given its parents x position, its index
+ * as a child node, and the number of other children sharing the same parent.
+ *
+ * @param parent_x: the parent's x position.
+ * @param i: the index of the node as a child node.
+ * @param num_steps: the number of other children sharing the same parent.
+ * @return: the x position of the child.
+ */
+function calc_child_x_position(parent_x, i, num_steps) {
+  return parent_x + 200.0 * Math.cos(i * (2 * Math.PI / num_steps));
+}
+
+/*
+ * Calculates a node's y position, given its parents y position, its index
+ * as a child node, and the number of other children sharing the same parent.
+ *
+ * @param parent_x: the parent's y position.
+ * @param i: the index of the node as a child node.
+ * @param num_steps: the number of other children sharing the same parent.
+ * @return: the y position of the child.
+ */
+function calc_child_y_position(parent_y, i, num_steps) {
+  return parent_y + 200.0 * Math.sin(i * (2 * Math.PI / num_steps));
 }
 
 /******************************************************************************/
