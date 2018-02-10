@@ -272,9 +272,9 @@ var nodes, links, oldNodes, // data
     .size([width, height]); 
 
 function render() {
-    force.nodes(nodes).links(links);
+    force.nodes(node_data).links(link_data);
 
-    svg = d3.select(".graph").append("svg")
+    svg = d3.select("body").append("svg")
       .attr("width", width)
       .attr("height", height);
 
@@ -282,8 +282,74 @@ function render() {
       .data(link_data, function (d) { return d.endpoints[0] + ',' + d.endpoints[1]; });
     var n = svg.selectAll(".node")
       .data(node_data);
+
+    enterLinks(l);
+    enterNodes(n);
+
+    link = svg.selectAll(".link");
+    node = svg.selectAll(".node");
+
+    force.on('tick', stepForce);
+    force.start();
 }
 
+function enterNodes(n) {
+  var g = n.enter().append("g")
+    .attr("class", "node");
+
+  g.append("circle")
+    .attr("cx", 0)
+    .attr("cy", 0)
+    .attr("r", function(d) {return d.depth * 10})
+    .call(force.drag);
+
+  g.append("text")
+    .attr("x", function(d) {return d.depth * 10 + 5}) //?????
+    .attr("dy", ".35em")
+    .text(function(d) {return d.name});
+}
+
+function exitNodes(n) {
+  n.exit().remove();
+}
+
+function enterLinks(l) {
+  l.enter().insert("line", ".node")
+    .attr("class", "link");
+}
+
+function exitLinks(l) {
+  l.exit().remove();
+}
+
+function update() {
+  force.nodes(node_data).links(link_data);
+
+  var l = svg.selectAll(".link")
+    .data(link_data, function (d) { return d.endpoints[0] + ',' + d.endpoints[1]; });
+  var n = svg.selectAll(".node")
+    .data(node_data);
+
+  enterLinks(l);
+  exitLinks(l);
+  enterNodes(n);
+  exitNodes(n);
+
+  link = svg.selectAll(".link");
+  node = svg.selectAll(".node");
+  node.select("circle").attr("r", function(d) {return d.depth * 10});
+
+  force.start();
+}
+
+function stepForce() {
+  link.attr("x1", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[0]}).x; })
+      .attr("y1", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[0]}).y; })
+      .attr("x2", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[1]}).x; })
+      .attr("y2", function(d) { return node_data.find(function(node) {return node.id == d.endpoints[1]}).y; });
+
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+}
 /******************************************************************************/
 /**************************** END GRAPH RENDERING *****************************/
 /******************************************************************************/
