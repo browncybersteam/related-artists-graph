@@ -219,3 +219,41 @@ function get_artist_id(artist_name, callback, args) {
 /******************************************************************************/
 /**************************** END DATA COLLECTION *****************************/
 /******************************************************************************/
+
+/******************************************************************************/
+/****************************** GRAPH RENDERING *******************************/
+/******************************************************************************/
+
+// adapted from http://bl.ocks.org/sxywu/9358409
+
+// set width and height 
+var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+var height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+
+var nodes, links, oldNodes, // data
+    svg, node, link, // d3 selections
+    force = d3.layout.force()
+    .charge(-300)
+    .linkDistance(50)
+    .size([width, height]); 
+
+function render() {
+    force.nodes(nodes).links(links);
+
+    svg = d3.select(".graph").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    var l = svg.selectAll(".link")
+      .data(link_data, function (d) { return d.endpoints[0] + ',' + d.endpoints[1]; });
+    var n = svg.selectAll(".node")
+      .data(node_data);
+}
+
+/******************************************************************************/
+/**************************** END GRAPH RENDERING *****************************/
+/******************************************************************************/
