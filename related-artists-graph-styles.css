@@ -44,11 +44,16 @@
 
   .albumcover {
     animation: darken 0.2s forwards;
-    border-radius: 100%;
-    width: 20%;
+    /* border-radius: 100%; */
+    /* width: 20%; */
     height: auto;
   }
 
   .albumcover:hover {
     animation: lighten 0.2s forwards;
   }
+  
+  .link {
+    stroke: #777;
+    stroke-width: 2px;
+}

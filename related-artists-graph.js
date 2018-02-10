@@ -26,12 +26,96 @@ $.ajax({
     }
 });
 
+
+// set some variables for the width and height
+var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+var height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+
+// set up the links and nodes arrays
+dataNodes = [];
+nodeIdsToIdxs = {};
+dataLinks = [];
+links = [];
+nodes = [];
+// set up the force object
+var force = null;
+// speed of animation.
+var animationStep = 400;
+var svg = null;
+
 // Main function.
 function main() {
     // register listener for text box
     document.getElementById('fartist').onkeypress = enterKeyPressedOnTextbox;
-    // do an update to a default
-    updateArtist('Radiohead');
+    // One other parameter for our visualization determines how
+    // fast (or slow) the animation executes. It's a time value
+    
+    // build the graph
+    buildGraph();
+
+    // create our svg object
+    svg = d3.select('.chart').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+    setTimeout(initForce, 1000);
+}
+
+function initForce() {
+    svg.selectAll('*').remove();
+    // the force object
+    force = d3.layout.force()
+        .size([width, height])
+        .nodes(dataNodes)
+        .links(dataLinks);
+    // set up some attributes
+    force.gravity(1);
+    force.linkDistance(height/100);
+    // how strong links are; i.e., how elastic they are
+    force.linkStrength(1.0);
+    // how attracted nodes are to each other
+    force.charge(function(node) {
+        return node.depth * -1000;
+    });
+
+    // set up our links
+    links = svg.selectAll('.link')
+        .data(dataLinks)
+        .enter().append('line')
+        .attr('class', 'link')
+        .attr('x1', function(d) { return dataNodes[nodeIdsToIdxs[d.source]].x; })
+        .attr('y1', function(d) { return dataNodes[nodeIdsToIdxs[d.source]].y; })
+        .attr('x2', function(d) { return dataNodes[nodeIdsToIdxs[d.target]].x; })
+        .attr('y2', function(d) { return dataNodes[nodeIdsToIdxs[d.target]].y; });
+    // set up our nodes
+    nodes = svg.selectAll('.node')
+        .data(dataNodes)
+        .enter().append('circle')
+        .attr('r', function(d) {return Math.sqrt(d.depth) * width/100; })
+        .attr('cx', function(d) { return d.x; })
+        .attr('cy', function(d) { return d.y; });
+    // call the step function at each iteration
+    force.on('tick', stepForce);
+    console.log(dataNodes)
+    console.log(dataLinks)
+    for (i in nodeIdsToIdxs) {
+        console.log(dataNodes[nodeIdsToIdxs[i]]);
+    }
+    console.log(Object.keys(nodeIdsToIdxs).length);
+    force.start();
+}
+
+function stepForce() {
+    nodes.attr('cx', function(d) { return d.x; })
+            .attr('cy', function(d) { return d.y; });
+
+    links.attr('x1', function(d) { return dataNodes[nodeIdsToIdxs[d.source]].x; })
+    .attr('y1', function(d) { return dataNodes[nodeIdsToIdxs[d.source]].y; })
+    .attr('x2', function(d) { return dataNodes[nodeIdsToIdxs[d.target]].x; })
+    .attr('y2', function(d) { return dataNodes[nodeIdsToIdxs[d.target]].y; });
 }
 
 function enterKeyPressedOnTextbox(e) {
@@ -41,77 +125,65 @@ function enterKeyPressedOnTextbox(e) {
     }
 }
 
-// updates page to new artist
-function updateArtist(artist) {
-    getArtistID(artist, function (artistID) {
-        updateArtistAlbums(artistID);
+// builds graph
+function buildGraph() {
+    getArtistID('radiohead', seedGraph, {});
+    getArtistID('radiohead', addRelatedToGraph, {depth: 2});
+}
+
+function seedGraph(artistID, args) {
+    s.getArtist(artistID, function (err, data) {
+        if (err) { console.error(err); }
+        var idx = dataNodes.length;
+        dataNodes[idx] = {
+            name: data.name,
+            url: data.external_urls.spotify,
+            img: data.images[0].url,
+            x: width / 2,
+            y: height / 2,
+            depth: 3
+        };
+        nodeIdsToIdxs[data.id] = idx;
     });
+}
+
+function addRelatedToGraph(artistID, args) {
+    if (args.depth > 0) {
+        s.getArtistRelatedArtists(artistID, function(err, data) {
+            if (err) { console.error(err); }
+            for (i = 0; i < data.artists.length / 3; i++) {
+                var idx = dataNodes.length;
+                dataNodes[idx] = {
+                    name: data.artists[i].name,
+                    url: data.artists[i].external_urls.spotify,
+                    img: data.artists[i].images[0].url,
+                    x: width/2 + (3 - args.depth) * 200.0 * Math.cos(i * (6.28 / (data.artists.length / 3.0))),
+                    y: height/2 + (3 - args.depth) * 200.0 * Math.sin(i * (6.28 / (data.artists.length / 3.0))),
+                    depth: args.depth
+                };
+                nodeIdsToIdxs[data.artists[i].id] = idx;
+                dataLinks[dataLinks.length] = {
+                    source: artistID,
+                    target: data.artists[i].id,
+                    weight: 1
+                };
+                addRelatedToGraph(data.artists[i].id, {depth: args.depth - 1});
+            }
+        });
+    }
 }
 
 // Queries the Spotify api for an artist's ID, given the artist's name.
 //
 // @param artistName - the name to search for
 // @param callback - what to do once the id has been found
-function getArtistID(artistName, callback) {
+function getArtistID(artistName, callback, args) {
     s.searchArtists(artistName, {}, function(err, data) {
         if (err) { console.error(err); }
-        else { callback(data.artists.items[0].id); }
+        else { callback(data.artists.items[0].id, args); }
     });
 }
 
-// Updates the urls in artist albums array.
-//
-// @param artistID - the artist ID to display the albums of
-function updateArtistAlbums(artistID) {
-    s.getArtistAlbums(artistID, function(err, albums) {
-        if (err) { console.error(err); }
-        else {
-            var alreadyDisplayed = []; // to keep track of duplicates
-            data.length = 0; // clear the old data
-            for (i = 0; i < albums.items.length; i++) {
-                if (!alreadyDisplayed.includes(albums.items[i].name)) {
-                    data[data.length] = {
-                        image: albums.items[i].images[0].url, 
-                        url: albums.items[i].external_urls.spotify,
-                        name: albums.items[i].name,
-                        id: albums.items[i].id
-                    };
-                    alreadyDisplayed[alreadyDisplayed.length] = albums.items[i].name;
-                }
-            }
-            updateData();
-        }
-    });
-}
-
-// Binds artist data to objects in the DOM with d3.
-function updateData() {
-    // get the content we care about
-    var content = d3.select(".chart").selectAll(".albumcover").data(data, 
-        function (d) { return d.id; } );
-    
-    // add the new
-    content.enter()        // sees that there are new elements; creates placeholder elements
-        .append("img")     // adds an img to the placeholder that enter() created
-        // any time you want to use data to set a parameter, you can pass in
-        // a function in place of a hardcoded value to do an operation on the
-        // node's data to set the parameter in question.
-        .attr("class", "albumcover")
-        .attr("src", function (d) { return d.image; })
-        .attr("onclick",
-            function (d) { return "navigateToURL(\'" + d.url + "\')"; })
-        .style("opacity", "0.0")
-        .transition()
-            .delay(200)
-            .duration(400)
-            .style("opacity", "1.0")
-
-    // get rid of the old
-    content.exit()
-    .transition()
-        .duration(100)
-        .style("opacity", "0.0").delay(200).remove()
-}
 // Navigates browser to specified url.
 function navigateToURL(url) {
     window.location.href = url;
