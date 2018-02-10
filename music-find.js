@@ -271,9 +271,11 @@ var simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
             .force("collide",d3.forceCollide( function(d){return 1/d.depth * 10 }).iterations(16) )
             .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("center", d3.forceCenter())
             .force("y", d3.forceY(0))
-            .force("x", d3.forceX(0))
+            .force("x", d3.forceX(0));
+//g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+//node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 
 function render() {
     simulation.nodes(node_data)
@@ -284,7 +286,7 @@ function render() {
     svg = d3.select("#graph").append("svg")
       .attr("width", width)
       .attr("height", height)
-      .attr("fill", "red");
+      .attr("class", "graph-svg-component");
 
     var l = svg.selectAll(".link")
       .data(link_data);
@@ -306,12 +308,13 @@ function enterNodes(n) {
     .attr("class", "node");
 
   g.append("circle")
-    .attr("cx", 0)
-    .attr("cy", 0)
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })
     .attr("r", function(d) {return d.depth * 10});
 
   g.append("text")
-    .attr("x", function(d) {return d.depth * 10 + 5}) //?????
+    .attr("x", function(d) { return d.x + 5 }) //?????
+    .attr("y", function(d) { return d.y; })
     .attr("dy", ".35em")
     .text(function(d) {return d.name});
 }
