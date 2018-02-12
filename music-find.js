@@ -260,6 +260,7 @@ var svg; // svg selection holder
 var simulation; // d3 force simulation object
 var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
+var labels;
 
 function gui_setup() {
   // set up the svg container
@@ -269,7 +270,7 @@ function gui_setup() {
   // set up the force simulation
   simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("charge", d3.forceManyBody(10))
+            .force("charge", d3.forceManyBody(2))
             .force("center", d3.forceCenter(width / 2, height / 2))
   link_graphics_objects = svg.append("g")
             .attr("class", "links")
@@ -278,16 +279,24 @@ function gui_setup() {
             .enter()
             .append("line")
             .attr("stroke", "black")
-  node_graphics_objects = svg.append("g")
-            .attr("class", "nodes")
-            .selectAll("circle")
+
+  // changed this to make individual groups for each node - allows labels and individual hover transitions
+  node_graphics_objects = svg.selectAll(".nodes")
             .data(node_data)
-            .enter().append("circle")
-            .attr("r", function(d) { return depth_to_radius(d.depth) })
+            .enter().append("g")
+            .attr("class", "nodes")
             .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
               .on("end", dragended));
+
+  node_graphics_objects.append("circle")
+            .attr("r", function(d) { return depth_to_radius(d.depth) })
+
+  node_graphics_objects.append("text")
+            .attr("dy", ".35em")
+            .text(function (d) {return d.name;});
+
   simulation
             .nodes(node_data)
             .on("tick", ticked);
@@ -302,8 +311,9 @@ function ticked() {
     .attr('x2', function(d) { return d.target.x; })
     .attr('y2', function(d) { return d.target.y; });
 
-  node_graphics_objects.attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; });
+
+  node_graphics_objects
+            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
 }
 
 
