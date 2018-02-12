@@ -284,6 +284,10 @@ function gui_setup() {
             .data(node_data)
             .enter().append("circle")
             .attr("r", function(d) { return depth_to_radius(d.depth) })
+            .call(d3.drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended));
   simulation
             .nodes(node_data)
             .on("tick", ticked);
@@ -300,6 +304,25 @@ function ticked() {
 
   node_graphics_objects.attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; });
+}
+
+
+// dragging event functions
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
 }
 
 /*
