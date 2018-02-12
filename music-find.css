@@ -1,17 +1,23 @@
-.node circle {
-  stroke: #5187aa;
-  stroke-width: 2px;
+.nodes circle {
+  fill: #000000;
+  stroke: #000000;
+  stroke-width: 4px;
 }
 
-.node text {
+.nodes text {
   fill: #000000;
   stroke: none;
   font-size: .6em;
+  font-family: arial;
 }
 
-.link {
+.links {
   stroke: #cccccc;
   stroke-opacity: .6;
+}
+
+.nodes:hover circle {
+  fill: #0ac2d3;
 }
 
 .graph-svg-component {

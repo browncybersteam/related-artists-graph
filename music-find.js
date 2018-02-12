@@ -272,6 +272,7 @@ var defs; // for the image resources for the nodes
 var simulation; // d3 force simulation object
 var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
+var labels;
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
@@ -289,8 +290,7 @@ function gui_setup() {
   // set up the force simulation
   simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
-            .force("charge", d3.forceManyBody())
+            .force("charge", d3.forceManyBody(2))
             .force("center", d3.forceCenter(width / 2, height / 2))
   // make sure the repulsive force is strong enough
   simulation.force('charge').strength(repulsive_force_strength)
@@ -321,10 +321,10 @@ function gui_setup() {
       .attr("xlink:href", function(d) { return d.img_url })
   // graphical representations of nodes
   node_graphics_objects = svg.append("g")
-            .attr("class", "node")
             .selectAll("circle")
             .data(node_data)
             .enter().append("circle")
+            .attr("class", "node")
             .attr("r", function(d) { return depth_to_radius(d.depth) })
             .attr("fill", function(d) { return "url(#" + d.id + ")" })
             .on("mousemove", function(d) {d3.select(this)
@@ -342,6 +342,12 @@ function gui_setup() {
               .on("start", dragstarted)
               .on("drag", dragged)
               .on("end", dragended))
+
+
+  node_graphics_objects.append("text")
+            .attr("dy", ".35em")
+            .attr("dx", -10)
+            .text(function (d) {return d.name;});
   // bind the node data and the position updating function to the simulation
   simulation
             .nodes(node_data)
@@ -357,8 +363,9 @@ function ticked() {
     .attr('x2', function(d) { return d.target.x; })
     .attr('y2', function(d) { return d.target.y; });
 
-  node_graphics_objects.attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; });
+
+  node_graphics_objects
+            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
 }
 
 
