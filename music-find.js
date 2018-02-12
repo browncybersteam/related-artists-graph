@@ -160,7 +160,7 @@ function load_first_artist(artist_id) {
         id: data.id,
         name: data.name,
         spotify_url: data.external_urls.spotify,
-        img_url: data.images[0].url,
+        img_url: data.images[2].url,
         popularity: data.popularity,
         depth: 0,
         x: width / 2,
@@ -188,7 +188,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length;
+        number_to_include = data.artists.length / 2;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -199,11 +199,12 @@ function load_related_artists(parent_artist_id, max_depth,
           if (!artists_already_added.has(artist_data.id)) {
             artists_already_added.add(artist_data.id);
             idx = node_data.length;
+            //console.log(artist_data.images[2].width);
             node_data[idx] = {
               id: artist_data.id,
               name: artist_data.name,
               spotify_url: artist_data.external_urls.spotify,
-              img_url: artist_data.images[0].url,
+              img_url: artist_data.images[2].url,
               popularity: artist_data.popularity,
               depth: parent_depth + 1,
               x: calc_child_x_position(parent_x, i, number_to_include, parent_depth + 1),
