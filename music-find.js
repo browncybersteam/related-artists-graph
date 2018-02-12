@@ -104,7 +104,7 @@ height = window.innerHeight
  */
 function main() {
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
-  setTimeout(render, 5000);
+  setTimeout(gui_setup, 5000);
 }
 
 /******************************************************************************/
@@ -256,116 +256,60 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-// adapted from http://bl.ocks.org/sxywu/9358409
+var svg; // svg selection holder
+var simulation; // d3 force simulation object
+var link_graphics_objects; // document objects for links
+var node_graphics_objects; // document objects for nodes
 
-var nodes, links, oldNodes, // data
-    svg, node, link; // d3 selections
-
-    /*
-    force = d3.layout.force()
-    .charge(-300)
-    .linkDistance(50)
-    .size([width, height]);
-    */
-var simulation = d3.forceSimulation(node_data)
+function gui_setup() {
+  // set up the svg container
+  svg = d3.select("#graph").append("svg")
+  svg.attr('width', width)
+    .attr('height', height)
+  // set up the force simulation
+  simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("collide",d3.forceCollide( function(d){return 1/(1 + d.depth) * 50 + 20}).iterations(16) )
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(100, 100))
-            .force("y", d3.forceY(100))
-            .force("x", d3.forceX(100));
-//g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-//node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
-
-function render() {
-    simulation.nodes(node_data)
-      .on("tick", stepForce);
-    simulation.force("link")
-      .links(link_data);
-
-    svg = d3.select("#graph").append("svg")
-      .attr("width", width)
-      .attr("height", height + 500)
-      .attr("class", "graph-svg-component");
-
-    var l = svg.selectAll(".link")
-      .data(link_data);
-    var n = svg.selectAll(".node")
-      .data(node_data);
-
-    enterLinks(l);
-    enterNodes(n);
-
-    link = svg.selectAll(".link");
-    node = svg.selectAll(".node");
-
-    //force.on('tick', stepForce);
-    //force.start();
+            .force("charge", d3.forceManyBody(10))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+  link_graphics_objects = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(link_data)
+            .enter()
+            .append("line")
+            .attr("stroke", "black")
+  node_graphics_objects = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(node_data)
+            .enter().append("circle")
+            .attr("r", function(d) { return depth_to_radius(d.depth) })
+  simulation
+            .nodes(node_data)
+            .on("tick", ticked);
+  simulation.force("link")
+            .links(link_data);
+  console.log("setup done!")
 }
 
-function enterNodes(n) {
-  var g = n.enter().append("g")
-    .attr("class", "node");
-
-  g.append("circle")
-    .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; })
-    .attr("r", function(d) {return 1/(1 + d.depth) * 50});
-
-  g.append("text")
-    .attr("x", function(d) { return d.x + 5 }) //?????
-    .attr("y", function(d) { return d.y; })
-    .attr("dy", ".35em")
-    .text(function(d) {return d.name});
-}
-
-function exitNodes(n) {
-  n.exit().remove();
-}
-
-function enterLinks(l) {
-  l.enter().append("line")
-    .attr("class", "link")
-    .attr('x1', function(d) { return d.source.x; })
+function ticked() {
+  link_graphics_objects.attr('x1', function(d) { return d.source.x; })
     .attr('y1', function(d) { return d.source.y; })
     .attr('x2', function(d) { return d.target.x; })
-    .attr('y2', function(d) { return d.target.x; });
-}
+    .attr('y2', function(d) { return d.target.y; });
 
-function exitLinks(l) {
-  l.exit().remove();
-}
-
-function update() {
-  //force.nodes(node_data).links(link_data);
-
-  var l = svg.selectAll(".link")
-    .data(link_data);
-  var n = svg.selectAll(".node")
-    .data(node_data);
-
-  enterLinks(l);
-  exitLinks(l);
-  enterNodes(n);
-  exitNodes(n);
-
-  link = svg.selectAll(".link");
-  node = svg.selectAll(".node");
-  node.select("circle").attr("r", function(d) {return 1/(1 + d.depth) * 50});
-
-  //force.start();
-}
-
-function stepForce() {
-  link.attr('x1', function(d) { return d.source.x; })
-    .attr('y1', function(d) { return d.source.y; })
-    .attr('x2', function(d) { return d.target.x; })
-    .attr('y2', function(d) { return d.target.x; });
-
-  node
-    .attr("cx", function(d) { return d.x; })
+  node_graphics_objects.attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; });
-  //node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+/*
+ * Converts node depth to displayed node radius.
+ *
+ * @param depth: the depth to convert
+ * @return: depth converted to displayed node radius
+ */
+function depth_to_radius(depth) {
+  return 25.0 / (depth + 1);
 }
 /******************************************************************************/
 /**************************** END GRAPH RENDERING *****************************/
