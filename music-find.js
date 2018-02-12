@@ -304,6 +304,7 @@ function gui_setup() {
 
   node_graphics_objects.append("text")
             .attr("dy", ".35em")
+            .attr("dx", -10)
             .text(function (d) {return d.name;});
 
   simulation
