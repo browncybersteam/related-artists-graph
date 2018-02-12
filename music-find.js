@@ -71,6 +71,11 @@ node_data = [];
 link_data = [];
 
 /*
+ * Set of artist IDs. Meant to keep track of duplicates.
+ */
+artists_already_added = new Set();
+
+/*
  * Default artist that the graph is built with upon opening the page.
  */
 default_artist = 'radiohead';
@@ -78,7 +83,7 @@ default_artist = 'radiohead';
 /*
  * Default depth of the graph.
  */
-default_depth = 2;
+default_depth = 3;
 
 /*
  * Width and height of the window, with vanilla js.
@@ -182,26 +187,30 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        for (i = 0; i < data.artists.length/5; i++) {
+        number_to_include = data.artists.length/5;
+        for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
-          idx = node_data.length;
-          node_data[idx] = {
-            id: artist_data.id,
-            name: artist_data.name,
-            spotify_url: artist_data.external_urls.spotify,
-            img_url: artist_data.images[0].url,
-            popularity: artist_data.popularity,
-            depth: parent_depth + 1,
-            x: calc_child_x_position(parent_x, i, data.artists.length/5, parent_depth + 1),
-            y: calc_child_y_position(parent_y, i, data.artists.length/5, parent_depth + 1),
-          };
           link_data[link_data.length] = {
             id: parent_artist_id + ":" + artist_data.id,
             source: parent_artist_id,
             target: artist_data.id
           };
-          load_related_artists(artist_data.id, max_depth,
-            node_data[idx].depth, node_data[idx].x, node_data[idx].y);
+          if (!artists_already_added.has(artist_data.id)) {
+            artists_already_added.add(artist_data.id);
+            idx = node_data.length;
+            node_data[idx] = {
+              id: artist_data.id,
+              name: artist_data.name,
+              spotify_url: artist_data.external_urls.spotify,
+              img_url: artist_data.images[0].url,
+              popularity: artist_data.popularity,
+              depth: parent_depth + 1,
+              x: calc_child_x_position(parent_x, i, number_to_include, parent_depth + 1),
+              y: calc_child_y_position(parent_y, i, number_to_include, parent_depth + 1),
+            };
+            load_related_artists(artist_data.id, max_depth,
+              node_data[idx].depth, node_data[idx].x, node_data[idx].y);
+          }
         }
       }
     });
@@ -342,7 +351,7 @@ function dragended(d) {
  * @return: depth converted to displayed node radius
  */
 function depth_to_radius(depth) {
-  return 25.0 / (depth + 1);
+  return 35.0 / (depth + 1);
 }
 
 // comment to test github integration!
