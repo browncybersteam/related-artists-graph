@@ -1,7 +1,6 @@
-.nodes circle {
-  fill: #000000;
-  stroke: #000000;
-  stroke-width: 4px;
+.node circle {
+  stroke: #568dd5;
+  stroke-width: 2px;
 }
 
 .nodes text {

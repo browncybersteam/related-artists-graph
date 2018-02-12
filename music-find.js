@@ -166,6 +166,7 @@ function load_first_artist(artist_id) {
         x: width / 2,
         y: height / 2,
       };
+      artists_already_added.add(data.id);
   });
 }
 
@@ -187,7 +188,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length/5;
+        number_to_include = data.artists.length/3;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -265,7 +266,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -200 // strength of repulsive force
+var repulsive_force_strength = -100 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
@@ -294,6 +295,7 @@ function gui_setup() {
             .force("center", d3.forceCenter(width / 2, height / 2))
   // make sure the repulsive force is strong enough
   simulation.force('charge').strength(repulsive_force_strength)
+
   // graphical representations of links
   link_graphics_objects = svg.append("g")
             .attr("class", "links")
@@ -302,7 +304,8 @@ function gui_setup() {
             .enter()
             .append("line")
             .attr("stroke", "black")
-  // resources for the nodes
+
+  // image resources for the nodes
   defs
     .selectAll("pattern")
     .data(node_data)
@@ -319,12 +322,13 @@ function gui_setup() {
       .attr("width", 100)
       .attr("preserveAspectRatio", "xMidYMid slice")
       .attr("xlink:href", function(d) { return d.img_url })
+
   // graphical representations of nodes
   node_graphics_objects = svg.append("g")
+            .attr("class", "node")
             .selectAll("circle")
             .data(node_data)
             .enter().append("circle")
-            .attr("class", "node")
             .attr("r", function(d) { return depth_to_radius(d.depth) })
             .attr("fill", function(d) { return "url(#" + d.id + ")" })
             .on("mousemove", function(d) {d3.select(this)
@@ -338,20 +342,24 @@ function gui_setup() {
                                                 .duration(50)
                                                 .attr("r", depth_to_radius(d.depth))
                                         })
+            .on("click", function(d) {navigate_to_url(d.spotify_url)})
             .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
               .on("end", dragended))
 
 
-  node_graphics_objects.append("text")
-            .attr("dy", ".35em")
-            .attr("dx", -10)
-            .text(function (d) {return d.name;});
+  // allow for text fields
+  // node_graphics_objects.append("text")
+  //           .attr("dy", ".35em")
+  //           .attr("dx", -10)
+  //           .text(function (d) {return d.name;});
+
   // bind the node data and the position updating function to the simulation
   simulation
             .nodes(node_data)
             .on("tick", ticked);
+
   // bind the link data to the simulation
   simulation.force("link")
             .links(link_data);
@@ -397,7 +405,14 @@ function depth_to_radius(depth) {
   return 35.0 / (depth + 1);
 }
 
-// comment to test github integration!
+/*
+ * Navigates browser to specified url.
+ *
+ * @url: the url to navigate to.
+ */
+function navigate_to_url(url) {
+    window.open(url);
+}
 
 /******************************************************************************/
 /**************************** END GRAPH RENDERING *****************************/
