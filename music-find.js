@@ -83,7 +83,7 @@ default_artist = 'radiohead';
 /*
  * Default depth of the graph.
  */
-default_depth = 3;
+default_depth = 2;
 
 /*
  * Width and height of the window, with vanilla js.
@@ -265,21 +265,36 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
+var repulsive_force_strength = -200 // strength of repulsive force
+
 var svg; // svg selection holder
+var defs; // for the image resources for the nodes
 var simulation; // d3 force simulation object
 var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
 
 function gui_setup() {
+  // a function we'll be using for mouseover functionality
+  d3.selection.prototype.move_to_front = function() {
+    return this.each(function(){
+      this.parentNode.appendChild(this);
+    });
+  };
   // set up the svg container
   svg = d3.select("#graph").append("svg")
+  // for the image resources for the nodes
+  defs = svg.append("defs")
   svg.attr('width', width)
     .attr('height', height)
   // set up the force simulation
   simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("charge", d3.forceManyBody(10))
+            .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
+            .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, height / 2))
+  // make sure the repulsive force is strong enough
+  simulation.force('charge').strength(repulsive_force_strength)
+  // graphical representations of links
   link_graphics_objects = svg.append("g")
             .attr("class", "links")
             .selectAll("line")
@@ -287,22 +302,53 @@ function gui_setup() {
             .enter()
             .append("line")
             .attr("stroke", "black")
+  // resources for the nodes
+  defs
+    .selectAll("pattern")
+    .data(node_data)
+    .enter()
+    .append("pattern")
+    .attr("id", function(d) { return d.id })
+    .attr("patternUnits", "objectBoundingBox")
+    .attr("x", function(d) {return 0})
+    .attr("y", function(d) {return 0})
+    .attr("height", "100%")
+    .attr("width", "100%")
+    .append("image")
+      .attr("height", 100)
+      .attr("width", 100)
+      .attr("preserveAspectRatio", "xMidYMid slice")
+      .attr("xlink:href", function(d) { return d.img_url })
+  // graphical representations of nodes
   node_graphics_objects = svg.append("g")
-            .attr("class", "nodes")
+            .attr("class", "node")
             .selectAll("circle")
             .data(node_data)
             .enter().append("circle")
             .attr("r", function(d) { return depth_to_radius(d.depth) })
+            .attr("fill", function(d) { return "url(#" + d.id + ")" })
+            .on("mousemove", function(d) {d3.select(this)
+                                              .move_to_front()
+                                              .transition()
+                                                .duration(50)
+                                                .attr("r", 50)
+                                              })
+            .on("mouseout", function(d) {d3.select(this)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("r", depth_to_radius(d.depth))
+                                        })
             .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
-              .on("end", dragended));
+              .on("end", dragended))
+  // bind the node data and the position updating function to the simulation
   simulation
             .nodes(node_data)
             .on("tick", ticked);
+  // bind the link data to the simulation
   simulation.force("link")
             .links(link_data);
-  console.log("setup done!")
 }
 
 function ticked() {
