@@ -188,7 +188,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length/3;
+        number_to_include = data.artists.length;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -266,7 +266,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -100 // strength of repulsive force
+var repulsive_force_strength = -80 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
