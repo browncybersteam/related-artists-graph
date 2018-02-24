@@ -120,6 +120,8 @@ function main() {
 
 function keyPressEvent(e) {
   if(e.key === "Enter") {
+        svg.attr('visibility', 'hidden');
+        document.getElementById('artist_searchbar').blur();
         current_artist = document.getElementById('artist_searchbar').value;
         // reset data objects
         node_data = [];
@@ -132,8 +134,9 @@ function keyPressEvent(e) {
         setTimeout(
           function() {
             update();
+            svg.attr('visibility', 'visible');
           }, 7000);
-  } 
+  }
 }
 
 /******************************************************************************/
@@ -299,7 +302,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -80 // strength of repulsive force
+var repulsive_force_strength = -120 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
@@ -318,9 +321,7 @@ function gui_setup() {
   };
   // set up the svg container
   svg = d3.select("#graph").append("svg")
-  // for the image resources for the nodes
-  defs = svg.append("defs")
-  svg.attr('width', width)
+    .attr('width', width)
     .attr('height', height)
   // set up the force simulation
   simulation = d3.forceSimulation()
@@ -367,13 +368,13 @@ function update() {
             .enter().append("foreignObject")
             .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
-            .append("xhtml:img")
+
+  image_objs.append("xhtml:img")
             .attr("class", "node")
             .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("src", function(d) { return d.img_url})
             .on("mousemove", function(d) {d3.select(this)
-                                              .move_to_front()
                                               .transition()
                                                 .duration(50)
                                                 .attr("width", depth_to_radius(d.depth) * 2.2)
@@ -385,6 +386,9 @@ function update() {
                                                 .attr("width", depth_to_radius(d.depth) * 2)
                                                 .attr("height", depth_to_radius(d.depth) * 2)
                                         })
+    image_objs.append("xhtml:div")
+              .attr("text-align", "center")
+              .text(function(d) { return d.name; })
 
   node_graphics_objects = svg.selectAll("foreignObject")
                   .on("click", function(d) {navigate_to_url(d.spotify_url)})
