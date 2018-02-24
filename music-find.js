@@ -125,7 +125,7 @@ function main() {
           function() {
             //gui_setup();
             update();
-          }, 5000);
+          }, 7000);
       }
     }
   //console.log(current_artist);
