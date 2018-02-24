@@ -368,6 +368,8 @@ function update() {
             .enter().append("foreignObject")
             .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
+            .on("mousemove", function(d) {d3.select(this)
+                                              .move_to_front()})
 
   image_objs.append("xhtml:img")
             .attr("class", "node")
