@@ -211,7 +211,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length / 5;
+        number_to_include = data.artists.length / 2;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -343,9 +343,9 @@ function update() {
   link_graphics_objects = svg.append("g")
             .attr("class", "links")
             .selectAll("line")
-            .data(link_data);
+            .data(link_data)
   //link_graphics_objects.exit().remove();
-  link_graphics_objects.enter()
+  /*link_graphics_objects*/.enter()
             .append("line")
             .attr("stroke", "black")
 
@@ -368,7 +368,9 @@ function update() {
   //     .attr("preserveAspectRatio", "xMidYMid slice")
   //     .attr("xlink:href", function(d) { return d.img_url })
 
+
   // graphical representations of nodes
+
   svg.append("g")
             .attr("class", "nodes")
             .selectAll("foreignObject")
