@@ -107,18 +107,14 @@ height = window.innerHeight
  * Main function, called upon successful response from Spotify when attempting
  * to get an API token.
  */
-function main() {
-  //var current_artist = default_artist;
-  //console.log(document.getElementById('artist_searchbar'))
-  document.getElementById('artist_searchbar').onkeypress =
-    function (e) {
-      //console.log(document.getElementById('artist_searchbar').value);
-      if(e.key === "Enter") {
+function keyPressEvent(e) {
+  if(e.key === "Enter") {
         current_artist = document.getElementById('artist_searchbar').value;
         //node_data.length = 0;
         //link_data.length = 0;
         node_data = [];
         link_data = [];
+        artists_already_added = new Set();
         console.log(current_artist);
         get_artist_id(current_artist, build_data_graph, {depth: default_depth});
         setTimeout(
@@ -126,8 +122,13 @@ function main() {
             //gui_setup();
             update();
           }, 7000);
-      }
-  }
+  } 
+}
+
+function main() {
+  //var current_artist = default_artist;
+  //console.log(document.getElementById('artist_searchbar'))
+  document.getElementById('artist_searchbar').onkeypress = keyPressEvent;
   //console.log(current_artist);
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
   setTimeout(
@@ -217,7 +218,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length;
+        number_to_include = data.artists.length / 2;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
