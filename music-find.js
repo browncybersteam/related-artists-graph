@@ -107,35 +107,33 @@ height = window.innerHeight
  * Main function, called upon successful response from Spotify when attempting
  * to get an API token.
  */
-function keyPressEvent(e) {
-  if(e.key === "Enter") {
-        current_artist = document.getElementById('artist_searchbar').value;
-        //node_data.length = 0;
-        //link_data.length = 0;
-        node_data = [];
-        link_data = [];
-        artists_already_added = new Set();
-        console.log(current_artist);
-        get_artist_id(current_artist, build_data_graph, {depth: default_depth});
-        setTimeout(
-          function() {
-            //gui_setup();
-            update();
-          }, 7000);
-  } 
-}
-
 function main() {
-  //var current_artist = default_artist;
-  //console.log(document.getElementById('artist_searchbar'))
   document.getElementById('artist_searchbar').onkeypress = keyPressEvent;
-  //console.log(current_artist);
+  // make default graph
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
   setTimeout(
     function() {
       gui_setup();
       update();
     }, 5000);
+}
+
+function keyPressEvent(e) {
+  if(e.key === "Enter") {
+        current_artist = document.getElementById('artist_searchbar').value;
+        // reset data objects
+        node_data = [];
+        link_data = [];
+        artists_already_added = new Set();
+        console.log(current_artist);
+        // fetch new data
+        get_artist_id(current_artist, build_data_graph, {depth: default_depth});
+        // update visualization
+        setTimeout(
+          function() {
+            update();
+          }, 7000);
+  } 
 }
 
 /******************************************************************************/
@@ -296,14 +294,6 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /**************************** END DATA COLLECTION *****************************/
 /******************************************************************************/
 
-/******************************************************************************/
-/******************************* DATA UPDATING ********************************/
-/******************************************************************************/
-
-/******************************************************************************/
-/***************************** END DATA UPDATING ******************************/
-/******************************************************************************/
-
 
 /******************************************************************************/
 /****************************** GRAPH RENDERING *******************************/
@@ -335,7 +325,7 @@ function gui_setup() {
   // set up the force simulation
   simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("charge", d3.forceManyBody(2))
+            .force("charge", d3.forceManyBody(5))
             .force("center", d3.forceCenter(width / 2, height / 2))
   // make sure the repulsive force is strong enough
   simulation.force('charge').strength(repulsive_force_strength)
