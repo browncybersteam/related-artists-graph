@@ -311,6 +311,7 @@ var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
 var labels;
 var image_objs;
+var text_objs;
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
@@ -388,9 +389,26 @@ function update() {
                                                 .attr("width", depth_to_radius(d.depth) * 2)
                                                 .attr("height", depth_to_radius(d.depth) * 2)
                                         })
-    image_objs.append("xhtml:div")
+
+  text_objs = svg.append("g")
+            .attr("class", "nametext")
+            .selectAll("text")
+            .data(node_data)
+            //.exit().remove()
+            .enter()
+            .append("text")
+            .attr("dx", -12)
+            .attr("dy", ".35em")
+            .text(function(d) {return d.name;});
+    /*image_objs.append("xhtml:div")
               .attr("text-align", "center")
-              .text(function(d) { return d.name; })
+              .attr("class", "centered")
+              .attr("width", "100px")
+              .attr("height", "100px")
+              //.append("p")
+              //.html(function(d) { return d.name; })
+              //.attr("class", "nametext")
+              .html("blahblah");*/
 
   node_graphics_objects = svg.selectAll("foreignObject")
                   .on("click", function(d) {navigate_to_url(d.spotify_url)})
@@ -398,6 +416,7 @@ function update() {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
+
 
   // allow for text fields
   // node_graphics_objects.append("text")
@@ -418,6 +437,9 @@ function ticked() {
             .attr("transform", function (d) {return "translate(" +
             (d.x - depth_to_radius(d.depth)) + ", " +
             (d.y - depth_to_radius(d.depth)) + ")";});
+  text_objs.attr("transform", function (d) {return "translate(" +
+            d.x + ", " +
+            d.y  + ")";});
 }
 
 
