@@ -299,7 +299,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -80 // strength of repulsive force
+var repulsive_force_strength = -120 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
