@@ -108,6 +108,25 @@ height = window.innerHeight
  * to get an API token.
  */
 function main() {
+  //var current_artist = default_artist;
+  //console.log(document.getElementById('artist_searchbar'))
+  document.getElementById('artist_searchbar').onkeypress = 
+    function (e) {
+      //console.log(document.getElementById('artist_searchbar').value);
+      if(e.key === "Enter") {
+        current_artist = document.getElementById('artist_searchbar').value;
+        node_data = [];
+        link_data = [];
+        console.log(current_artist);
+        get_artist_id(current_artist, build_data_graph, {depth: default_depth});
+        setTimeout(
+          function() {
+            //gui_setup();
+            update();
+          }, 5000);
+      }
+    }
+  //console.log(current_artist);
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
   setTimeout(
     function() {
@@ -192,7 +211,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length / 2;
+        number_to_include = data.artists.length / 5;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -267,6 +286,15 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /******************************************************************************/
 
 /******************************************************************************/
+/******************************* DATA UPDATING ********************************/
+/******************************************************************************/
+
+/******************************************************************************/
+/***************************** END DATA UPDATING ******************************/
+/******************************************************************************/
+
+
+/******************************************************************************/
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
@@ -315,16 +343,18 @@ function update() {
   link_graphics_objects = svg.append("g")
             .attr("class", "links")
             .selectAll("line")
-            .data(link_data)
-            .enter()
+            .data(link_data);
+  //link_graphics_objects.exit().remove();
+  link_graphics_objects.enter()
             .append("line")
             .attr("stroke", "black")
 
   // image resources for the nodes
   defs
     .selectAll("pattern")
-    .data(node_data)
-    .enter()
+    .data(node_data);
+  //defs.exit().remove();
+  defs.enter()
     .append("pattern")
     .attr("id", function(d) { return d.id })
     .attr("patternUnits", "objectBoundingBox")
@@ -338,12 +368,14 @@ function update() {
       .attr("preserveAspectRatio", "xMidYMid slice")
       .attr("xlink:href", function(d) { return d.img_url })
 
+
   // graphical representations of nodes
   node_graphics_objects = svg.append("g")
             .attr("class", "node")
             .selectAll("circle")
-            .data(node_data)
-            .enter().append("circle")
+            .data(node_data);
+  //node_graphics_objects.exit().remove();
+  node_graphics_objects.enter().append("circle")
             .attr("r", function(d) { return depth_to_radius(d.depth) })
             .attr("fill", function(d) { return "url(#" + d.id + ")" })
             .on("mousemove", function(d) {d3.select(this)
