@@ -115,6 +115,8 @@ function main() {
       //console.log(document.getElementById('artist_searchbar').value);
       if(e.key === "Enter") {
         current_artist = document.getElementById('artist_searchbar').value;
+        //node_data.length = 0;
+        //link_data.length = 0;
         node_data = [];
         link_data = [];
         console.log(current_artist);
@@ -314,6 +316,7 @@ var simulation; // d3 force simulation object
 var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
 var labels;
+var image_objs;
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
@@ -339,6 +342,9 @@ function gui_setup() {
 
 function update() {
    // bind the node data and the position updating function to the simulation
+  d3.selectAll(".nodes").remove()
+  d3.selectAll(".links").remove()
+
   simulation
             .nodes(node_data)
             .on("tick", ticked);
@@ -357,32 +363,16 @@ function update() {
             .append("line")
             .attr("stroke", "black")
 
-  // image resources for the nodes
-
-  // defs
-  //   .selectAll("pattern")
-  //   .data(node_data)
-  //   .enter()
-  //   .append("pattern")
-  //   .attr("id", function(d) { return d.id })
-  //   .attr("patternUnits", "objectBoundingBox")
-  //   .attr("x", function(d) {return 0})
-  //   .attr("y", function(d) {return 0})
-  //   .attr("height", "100%")
-  //   .attr("width", "100%")
-  //   .append("image")
-  //     .attr("height", 100)
-  //     .attr("width", 100)
-  //     .attr("preserveAspectRatio", "xMidYMid slice")
-  //     .attr("xlink:href", function(d) { return d.img_url })
+  //link_graphics_objects.exit().remove();
 
 
   // graphical representations of nodes
 
-  svg.append("g")
+  image_objs = svg.append("g")
             .attr("class", "nodes")
             .selectAll("foreignObject")
             .data(node_data)
+            //.exit().remove()
             .enter().append("foreignObject")
             .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
