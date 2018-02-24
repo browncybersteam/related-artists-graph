@@ -199,7 +199,6 @@ function load_related_artists(parent_artist_id, max_depth,
           if (!artists_already_added.has(artist_data.id)) {
             artists_already_added.add(artist_data.id);
             idx = node_data.length;
-            //console.log(artist_data.images[2].width);
             node_data[idx] = {
               id: artist_data.id,
               name: artist_data.name,
