@@ -306,48 +306,54 @@ function gui_setup() {
             .attr("stroke", "black")
 
   // image resources for the nodes
-  defs
-    .selectAll("pattern")
-    .data(node_data)
-    .enter()
-    .append("pattern")
-    .attr("id", function(d) { return d.id })
-    .attr("patternUnits", "objectBoundingBox")
-    .attr("x", function(d) {return 0})
-    .attr("y", function(d) {return 0})
-    .attr("height", "100%")
-    .attr("width", "100%")
-    .append("image")
-      .attr("height", 100)
-      .attr("width", 100)
-      .attr("preserveAspectRatio", "xMidYMid slice")
-      .attr("xlink:href", function(d) { return d.img_url })
+  // defs
+  //   .selectAll("pattern")
+  //   .data(node_data)
+  //   .enter()
+  //   .append("pattern")
+  //   .attr("id", function(d) { return d.id })
+  //   .attr("patternUnits", "objectBoundingBox")
+  //   .attr("x", function(d) {return 0})
+  //   .attr("y", function(d) {return 0})
+  //   .attr("height", "100%")
+  //   .attr("width", "100%")
+  //   .append("image")
+  //     .attr("height", 100)
+  //     .attr("width", 100)
+  //     .attr("preserveAspectRatio", "xMidYMid slice")
+  //     .attr("xlink:href", function(d) { return d.img_url })
 
   // graphical representations of nodes
-  node_graphics_objects = svg.append("g")
-            .attr("class", "node")
-            .selectAll("circle")
+  svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("foreignObject")
             .data(node_data)
-            .enter().append("circle")
-            .attr("r", function(d) { return depth_to_radius(d.depth) })
-            .attr("fill", function(d) { return "url(#" + d.id + ")" })
-            .on("mousemove", function(d) {d3.select(this)
-                                              .move_to_front()
-                                              .transition()
-                                                .duration(50)
-                                                .attr("r", 50)
-                                              })
-            .on("mouseout", function(d) {d3.select(this)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("r", depth_to_radius(d.depth))
-                                        })
-            .on("click", function(d) {navigate_to_url(d.spotify_url)})
-            .call(d3.drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended))
+            .enter().append("foreignObject")
+            .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
+            .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
+            .append("xhtml:img")
+            .attr("class", "node")
+            .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
+            .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
+            .attr("src", function(d) { return d.img_url})
 
+  node_graphics_objects = svg.selectAll("foreignObject")
+                  .on("mousemove", function(d) {d3.select(this)
+                                                    .move_to_front()
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("r", 50)
+                                                    })
+                  .on("mouseout", function(d) {d3.select(this)
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("r", depth_to_radius(d.depth))
+                                              })
+                  .on("click", function(d) {navigate_to_url(d.spotify_url)})
+                  .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
 
   // allow for text fields
   // node_graphics_objects.append("text")
@@ -373,7 +379,9 @@ function ticked() {
 
 
   node_graphics_objects
-            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
+            .attr("transform", function (d) {return "translate(" +
+            (d.x - depth_to_radius(d.depth)) + ", " +
+            (d.y - depth_to_radius(d.depth)) + ")";});
 }
 
 

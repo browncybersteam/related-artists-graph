@@ -1,13 +1,15 @@
-.node circle {
-  stroke: #568dd5;
-  stroke-width: 2px;
-}
-
 .nodes text {
   fill: #000000;
   stroke: none;
   font-size: .6em;
   font-family: arial;
+}
+
+.node {
+  border-radius: 100%;
+  border-style: solid;
+  border-color: #568dd5;
+  border-width: 2px;
 }
 
 .links {
