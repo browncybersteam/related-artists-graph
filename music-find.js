@@ -110,7 +110,7 @@ height = window.innerHeight
 function main() {
   //var current_artist = default_artist;
   //console.log(document.getElementById('artist_searchbar'))
-  document.getElementById('artist_searchbar').onkeypress = 
+  document.getElementById('artist_searchbar').onkeypress =
     function (e) {
       //console.log(document.getElementById('artist_searchbar').value);
       if(e.key === "Enter") {
@@ -127,7 +127,7 @@ function main() {
             update();
           }, 7000);
       }
-    }
+  }
   //console.log(current_artist);
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
   setTimeout(
@@ -181,11 +181,15 @@ function load_first_artist(artist_id) {
       if (err) { console.error(err); }
       var idx = node_data.length;
       console.log(data);
+      image_index_to_load = 2; // index to grab image url from
+      if (data.images.length < 3) {
+        image_index_to_load = 0; // just in case the low res version is not present
+      }
       node_data[idx] = {
         id: data.id,
         name: data.name,
         spotify_url: data.external_urls.spotify,
-        img_url: data.images[2].url,
+        img_url: data.images[image_index_to_load].url,
         popularity: data.popularity,
         depth: 0,
         x: width / 2,
@@ -213,7 +217,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length / 5;
+        number_to_include = data.artists.length;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -224,11 +228,15 @@ function load_related_artists(parent_artist_id, max_depth,
           if (!artists_already_added.has(artist_data.id)) {
             artists_already_added.add(artist_data.id);
             idx = node_data.length;
+            image_index_to_load = 2; // index to grab image url from
+            if (artist_data.images.length < 3) {
+              image_index_to_load = 0; // just in case the low res version is not present
+            }
             node_data[idx] = {
               id: artist_data.id,
               name: artist_data.name,
               spotify_url: artist_data.external_urls.spotify,
-              img_url: artist_data.images[2].url,
+              img_url: artist_data.images[image_index_to_load].url,
               popularity: artist_data.popularity,
               depth: parent_depth + 1,
               x: calc_child_x_position(parent_x, i, number_to_include, parent_depth + 1),
@@ -308,7 +316,7 @@ var simulation; // d3 force simulation object
 var link_graphics_objects; // document objects for links
 var node_graphics_objects; // document objects for nodes
 var labels;
-var image_objs; 
+var image_objs;
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
@@ -372,23 +380,22 @@ function update() {
             .attr("class", "node")
             .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
             .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
-            .attr("src", function(d) { return d.img_url});
-
-  //image_objs.exit().remove();
-  //svg.exit().remove();
+            .attr("src", function(d) { return d.img_url})
+            .on("mousemove", function(d) {d3.select(this)
+                                              .move_to_front()
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", depth_to_radius(d.depth) * 2.2)
+                                                .attr("height", depth_to_radius(d.depth) * 2.2)
+                                              })
+            .on("mouseout", function(d) {d3.select(this)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", depth_to_radius(d.depth) * 2)
+                                                .attr("height", depth_to_radius(d.depth) * 2)
+                                        })
 
   node_graphics_objects = svg.selectAll("foreignObject")
-                  .on("mousemove", function(d) {d3.select(this)
-                                                    .move_to_front()
-                                                    .transition()
-                                                      .duration(50)
-                                                      .attr("r", 50)
-                                                    })
-                  .on("mouseout", function(d) {d3.select(this)
-                                                    .transition()
-                                                      .duration(50)
-                                                      .attr("r", depth_to_radius(d.depth))
-                                              })
                   .on("click", function(d) {navigate_to_url(d.spotify_url)})
                   .call(d3.drag()
                     .on("start", dragstarted)
