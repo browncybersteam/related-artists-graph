@@ -109,7 +109,11 @@ height = window.innerHeight
  */
 function main() {
   get_artist_id(default_artist, build_data_graph, {depth: default_depth});
-  setTimeout(gui_setup, 5000);
+  setTimeout(
+    function() {
+      gui_setup();
+      update();
+    }, 5000);
 }
 
 /******************************************************************************/
@@ -295,6 +299,17 @@ function gui_setup() {
             .force("center", d3.forceCenter(width / 2, height / 2))
   // make sure the repulsive force is strong enough
   simulation.force('charge').strength(repulsive_force_strength)
+}
+
+function update() {
+   // bind the node data and the position updating function to the simulation
+  simulation
+            .nodes(node_data)
+            .on("tick", ticked);
+
+  // bind the link data to the simulation
+  simulation.force("link")
+            .links(link_data);
 
   // graphical representations of links
   link_graphics_objects = svg.append("g")
@@ -361,14 +376,6 @@ function gui_setup() {
   //           .attr("dx", -10)
   //           .text(function (d) {return d.name;});
 
-  // bind the node data and the position updating function to the simulation
-  simulation
-            .nodes(node_data)
-            .on("tick", ticked);
-
-  // bind the link data to the simulation
-  simulation.force("link")
-            .links(link_data);
 }
 
 function ticked() {
