@@ -1,28 +1,22 @@
 .nodes text {
-  fill: #000000;
-  stroke: none;
-  font-size: .6em;
-  font-family: arial;
-}
-
-.node {
-  border-radius: 100%;
-  border-style: solid;
-  border-color: #568dd5;
-  border-width: 2px;
+  font-size: 18;
+	font-family: 'Oxygen', sans-serif;
+  font-weight: bold;
+  fill: #01283e;
+  stroke: rgb(240, 240, 240);
+  stroke-width: 0.7;
+  stroke-linecap:butt;
+  stroke-linejoin:miter;
+  stroke-opacity: 1.0;
+  opacity: 0.0;
+  transition: .5s ease;
+  text-align: center;
+  background-color: rgba(195, 201, 201, 0.78);
 }
 
 .links {
   stroke: #cccccc;
   stroke-opacity: .6;
-}
-
-.nodes:hover circle {
-  fill: #0ac2d3;
-}
-
-.graph-svg-component {
-    background-color: AliceBlue;
 }
 
 .entry-text {
@@ -67,7 +61,31 @@ input[type=text] {
     height: 100%;
 }
 
-.nametext {
-	font-size: 18;
-	font-family: 'Oxygen', sans-serif;
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.node {
+  border-radius: 100%;
+  border-style: solid;
+  border-color: #568dd5;
+  border-width: 2px;
+  display: block;
+}
+
+.svg-node-container {
+
+}
+
+.svg-node-container:hover .nametext {
+  opacity: 1.0;
 }

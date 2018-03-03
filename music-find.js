@@ -115,7 +115,7 @@ function main() {
     function() {
       gui_setup();
       update();
-    }, 5000);
+    }, 3000);
 }
 
 function keyPressEvent(e) {
@@ -187,11 +187,15 @@ function load_first_artist(artist_id) {
       if (data.images.length < 3) {
         image_index_to_load = 0; // just in case the low res version is not present
       }
+      img_link = "http://iosicongallery.com/img/512/spotify-music-2015-07-30.png"
+      if (data.images.length > 0) {
+        img_link = data.images[image_index_to_load].url
+      }
       node_data[idx] = {
         id: data.id,
         name: data.name,
         spotify_url: data.external_urls.spotify,
-        img_url: data.images[image_index_to_load].url,
+        img_url: img_link,
         popularity: data.popularity,
         depth: 0,
         x: width / 2,
@@ -219,7 +223,7 @@ function load_related_artists(parent_artist_id, max_depth,
       if (err) {
         console.error(err);
       } else {
-        number_to_include = data.artists.length / 2;
+        number_to_include = data.artists.length;
         for (i = 0; i < number_to_include; i++) {
           artist_data = data.artists[i]
           link_data[link_data.length] = {
@@ -234,11 +238,15 @@ function load_related_artists(parent_artist_id, max_depth,
             if (artist_data.images.length < 3) {
               image_index_to_load = 0; // just in case the low res version is not present
             }
+            img_link = "http://iosicongallery.com/img/512/spotify-music-2015-07-30.png"
+            if (artist_data.images.length > 0) {
+              img_link = artist_data.images[image_index_to_load].url
+            }
             node_data[idx] = {
               id: artist_data.id,
               name: artist_data.name,
               spotify_url: artist_data.external_urls.spotify,
-              img_url: artist_data.images[image_index_to_load].url,
+              img_url: img_link,
               popularity: artist_data.popularity,
               depth: parent_depth + 1,
               x: calc_child_x_position(parent_x, i, number_to_include, parent_depth + 1),
@@ -302,7 +310,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -120 // strength of repulsive force
+var repulsive_force_strength = -80 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
@@ -324,11 +332,22 @@ function gui_setup() {
   svg = d3.select("#graph").append("svg")
     .attr('width', width)
     .attr('height', height)
+  txt_filter = svg.append("defs")
+    .append("filter")
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("width", "1")
+    .attr("height", "1")
+    .attr("id", "text-bg")
+  txt_filter.append("feFlood")
+    .attr("flood-color", "rgba(220, 220, 220, 0.8)")
+  txt_filter.append("feComposite")
+    .attr("in", "SourceGraphic")
   // set up the force simulation
   simulation = d3.forceSimulation()
             .force("link", d3.forceLink().id(function(d) { return d.id }))
-            .force("charge", d3.forceManyBody(5))
-            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(width / 2 , height / 2))
   // make sure the repulsive force is strong enough
   simulation.force('charge').strength(repulsive_force_strength)
 }
@@ -337,6 +356,7 @@ function update() {
    // bind the node data and the position updating function to the simulation
   d3.selectAll(".nodes").remove()
   d3.selectAll(".links").remove()
+  d3.selectAll(".nametext").remove()
 
   simulation
             .nodes(node_data)
@@ -361,68 +381,87 @@ function update() {
 
   // graphical representations of nodes
 
-  image_objs = svg.append("g")
+  node_groups = svg.append("g")
             .attr("class", "nodes")
-            .selectAll("foreignObject")
-            .data(node_data)
-            //.exit().remove()
-            .enter().append("foreignObject")
-            .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
-            .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
-            .on("mousemove", function(d) {d3.select(this)
-                                              .move_to_front()})
-
-  image_objs.append("xhtml:img")
-            .attr("class", "node")
-            .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
-            .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
-            .attr("src", function(d) { return d.img_url})
-            .on("mousemove", function(d) {d3.select(this)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", depth_to_radius(d.depth) * 2.2)
-                                                .attr("height", depth_to_radius(d.depth) * 2.2)
-                                              })
-            .on("mouseout", function(d) {d3.select(this)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", depth_to_radius(d.depth) * 2)
-                                                .attr("height", depth_to_radius(d.depth) * 2)
-                                        })
-
-  text_objs = svg.append("g")
-            .attr("class", "nametext")
-            .selectAll("text")
+            .selectAll("g")
             .data(node_data)
             //.exit().remove()
             .enter()
-            .append("text")
-            .attr("dx", -12)
-            .attr("dy", ".35em")
-            .text(function(d) {return d.name;});
-    /*image_objs.append("xhtml:div")
-              .attr("text-align", "center")
-              .attr("class", "centered")
-              .attr("width", "100px")
-              .attr("height", "100px")
-              //.append("p")
-              //.html(function(d) { return d.name; })
-              //.attr("class", "nametext")
-              .html("blahblah");*/
+            .append("g")
+            .attr("class", "svg-node-container")
+            .attr("id", function(d) { return d.id })
+            .on("mousemove", function(d) {d3.select(this)
+                                              .move_to_front()
+                                              .transition()
+                                                .duration(50)
+                                                .attr("transform", "translate(" +
+                                                (d.x - 50) + ", " +
+                                                (d.y - 50) + ")")
+                                                .attr("width", "100")
+                                                .attr("height", "100")
+                                          d3.select("#img-" + d.id)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", "100")
+                                                .attr("height", "100")})
+            .on("mouseout", function(d) {d3.select(this)
+                                              .move_to_front()
+                                              .transition()
+                                                .duration(50)
+                                                .attr("transform", "translate(" +
+                                                (d.x - depth_to_radius(d.depth)) + ", " +
+                                                (d.y - depth_to_radius(d.depth)) + ")")
+                                                .attr("width", depth_to_radius(d.depth) * 2)
+                                                .attr("height", depth_to_radius(d.depth) * 2)
+                                          d3.select("#img-" + d.id)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", depth_to_radius(d.depth) * 2)
+                                                .attr("height", depth_to_radius(d.depth) * 2)})
 
-  node_graphics_objects = svg.selectAll("foreignObject")
+  text_objs = node_groups
+            .append("text")
+            .attr("class", "nametext unselectable")
+            .attr("id", function(d) { return "text-" + d.id.toString() })
+            .style("text-align", "center")
+            .attr("text-anchor", "middle")
+            // .attr("filter", "url(#text-bg)")
+            .text(function(d) {return d.name;});
+
+  image_objs = node_groups
+            .append("foreignObject")
+            .style("width", function(d) { return depth_to_radius(d.depth) * 2})
+            .style("height", function(d) { return depth_to_radius(d.depth) * 2})
+
+  divs = image_objs.append("xhtml:div")
+            .attr("class", "node-container")
+            .style("width", function(d) { return depth_to_radius(d.depth) * 2})
+            .style("height", function(d) { return depth_to_radius(d.depth) * 2})
+
+  divs.append("xhtml:img")
+            .attr("class", "node")
+            .attr("id", function(d) { return "img-" + d.id })
+            .attr("width", function(d) { return depth_to_radius(d.depth) * 2})
+            .attr("height", function(d) { return depth_to_radius(d.depth) * 2})
+            .attr("src", function(d) { return d.img_url})
+            .on("mousemove", function(d) { d3.select(this)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", "100")
+                                                .attr("height", "100");})
+
+            .on("mouseout", function(d) { d3.select(this)
+                                              .transition()
+                                                .duration(50)
+                                                .attr("width", depth_to_radius(d.depth) * 2)
+                                                .attr("height", depth_to_radius(d.depth) * 2);})
+
+  node_graphics_objects = svg.selectAll(".svg-node-container")
                   .on("click", function(d) {navigate_to_url(d.spotify_url)})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-
-
-  // allow for text fields
-  // node_graphics_objects.append("text")
-  //           .attr("dy", ".35em")
-  //           .attr("dx", -10)
-  //           .text(function (d) {return d.name;});
 
 }
 
@@ -435,11 +474,8 @@ function ticked() {
 
   node_graphics_objects
             .attr("transform", function (d) {return "translate(" +
-            (d.x - depth_to_radius(d.depth)) + ", " +
-            (d.y - depth_to_radius(d.depth)) + ")";});
-  text_objs.attr("transform", function (d) {return "translate(" +
-            d.x + ", " +
-            d.y  + ")";});
+            (d.x - d3.select("#img-" + d.id).attr("width") / 2) + ", " +
+            (d.y - d3.select("#img-" + d.id).attr("height") / 2) + ")";});
 }
 
 
