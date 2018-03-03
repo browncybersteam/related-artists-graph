@@ -88,12 +88,12 @@ default_depth = 2;
 /*
  * Width and height of the window, with vanilla js.
  */
-width = window.innerWidth
+width = (window.innerWidth
  || document.documentElement.clientWidth
- || document.body.clientWidth;
-height = window.innerHeight
+ || document.body.clientWidth);
+height = (window.innerHeight
  || document.documentElement.clientHeight
- || document.body.clientHeight;
+ || document.body.clientHeight);
 
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
@@ -125,27 +125,31 @@ function main() {
 
 function keyPressEvent(e) {
   if(e.key === "Enter") {
-        svg.attr('visibility', 'hidden');
-        document.getElementById('artist_searchbar').blur();
-        current_artist = document.getElementById('artist_searchbar').value;
-        // reset data objects
-        node_data = [];
-        link_data = [];
-        artists_already_added = new Set();
-        console.log(current_artist);
-        // fetch new data
-        get_artist_id(current_artist, build_data_graph, {depth: default_depth});
-        // update visualization
-        setTimeout(
-          function() {
-            update();
-          }, 3000);
-        // set visibility
-        setTimeout(
-          function() {
-            svg.attr('visibility', 'visible');
-          }, 5000)
+      document.getElementById('artist_searchbar').blur();
+      current_artist = document.getElementById('artist_searchbar').value;
+      reset(current_artist);
   }
+}
+
+function reset(artist) {
+  svg.attr('visibility', 'hidden');
+  // reset data objects
+  node_data = [];
+  link_data = [];
+  artists_already_added = new Set();
+  console.log(artist);
+  // fetch new data
+  get_artist_id(artist, build_data_graph, {depth: default_depth});
+  // update visualization
+  setTimeout(
+    function() {
+      update();
+    }, 3000);
+  // set visibility
+  setTimeout(
+    function() {
+      svg.attr('visibility', 'visible');
+    }, 5000)
 }
 
 /******************************************************************************/
@@ -319,7 +323,7 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 /****************************** GRAPH RENDERING *******************************/
 /******************************************************************************/
 
-var repulsive_force_strength = -80 // strength of repulsive force
+var repulsive_force_strength = -100 // strength of repulsive force
 
 var svg; // svg selection holder
 var defs; // for the image resources for the nodes
@@ -385,7 +389,7 @@ function update() {
   //link_graphics_objects.exit().remove();
   /*link_graphics_objects*/.enter()
             .append("line")
-            .attr("stroke", "black")
+            // .attr("stroke", "black")
 
   //link_graphics_objects.exit().remove();
 
@@ -468,7 +472,7 @@ function update() {
                                                 .attr("height", depth_to_radius(d.depth) * 2);})
 
   node_graphics_objects = svg.selectAll(".svg-node-container")
-                  .on("click", function(d) {navigate_to_url(d.spotify_url)})
+                  .on("click", function(d) {reset(d.name)})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)

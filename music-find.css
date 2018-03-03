@@ -9,13 +9,13 @@
   stroke-linejoin:miter;
   stroke-opacity: 1.0;
   opacity: 0.0;
-  transition: .5s ease;
+  transition: .3s ease;
   text-align: center;
   background-color: rgba(195, 201, 201, 0.78);
 }
 
 .links {
-  stroke: #cccccc;
+  stroke: #8d99aa;
   stroke-opacity: .6;
 }
 
