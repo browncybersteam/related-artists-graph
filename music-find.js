@@ -116,6 +116,11 @@ function main() {
       gui_setup();
       update();
     }, 3000);
+  // set visibility
+  setTimeout(
+    function() {
+      svg.attr('visibility', 'visible');
+    }, 5000)
 }
 
 function keyPressEvent(e) {
@@ -134,8 +139,12 @@ function keyPressEvent(e) {
         setTimeout(
           function() {
             update();
+          }, 3000);
+        // set visibility
+        setTimeout(
+          function() {
             svg.attr('visibility', 'visible');
-          }, 7000);
+          }, 5000)
   }
 }
 
@@ -332,6 +341,8 @@ function gui_setup() {
   svg = d3.select("#graph").append("svg")
     .attr('width', width)
     .attr('height', height)
+  // hide til we're done
+  svg.attr('visibility', 'hidden');
   txt_filter = svg.append("defs")
     .append("filter")
     .attr("x", "0")
@@ -462,6 +473,8 @@ function update() {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
+
+  simulation.alphaTarget(0.3).restart();
 
 }
 
