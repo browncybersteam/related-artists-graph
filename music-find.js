@@ -345,8 +345,15 @@ function gui_setup() {
   svg = d3.select("#graph").append("svg")
     .attr('width', width)
     .attr('height', height)
+    .call(d3.zoom()
+      .on("zoom", function () {
+          svg.attr("transform", d3.event.transform)
+        }))
+    .append("g")
   // hide til we're done
   svg.attr('visibility', 'hidden');
+
+  //svg = svg.append("g")
   txt_filter = svg.append("defs")
     .append("filter")
     .attr("x", "0")
@@ -386,12 +393,9 @@ function update() {
             .attr("class", "links")
             .selectAll("line")
             .data(link_data)
-  //link_graphics_objects.exit().remove();
-  /*link_graphics_objects*/.enter()
-            .append("line")
+            .enter()
+              .append("line")
             // .attr("stroke", "black")
-
-  //link_graphics_objects.exit().remove();
 
 
   // graphical representations of nodes
@@ -439,7 +443,8 @@ function update() {
             .attr("class", "nametext unselectable")
             .attr("id", function(d) { return "text-" + d.id.toString() })
             .style("text-align", "center")
-            .attr("text-anchor", "middle")
+            .attr("text-anchor", "start")
+            .attr("dy", "-.35em")
             // .attr("filter", "url(#text-bg)")
             .text(function(d) {return d.name;});
 
@@ -464,6 +469,7 @@ function update() {
                                                 .duration(50)
                                                 .attr("width", "100")
                                                 .attr("height", "100");})
+
 
             .on("mouseout", function(d) { d3.select(this)
                                               .transition()

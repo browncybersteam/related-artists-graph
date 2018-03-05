@@ -1,4 +1,6 @@
-// First, we create an instance of the wrapper.
+/* DONT USE THIS */
+
+instance of the wrapper.
 s = new SpotifyWebApi();
 data = [];
 
