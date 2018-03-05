@@ -78,7 +78,7 @@ artists_already_added = new Set();
 /*
  * Default artist that the graph is built with upon opening the page.
  */
-default_artist = 'radiohead';
+default_artist = 'Radiohead';
 
 /*
  * Default depth of the graph.
@@ -109,18 +109,24 @@ height = (window.innerHeight
  */
 function main() {
   document.getElementById('artist_searchbar').onkeypress = keyPressEvent;
+  document.getElementById('artist_searchbar').value = default_artist;
   // make default graph
-  get_artist_id(default_artist, build_data_graph, {depth: default_depth});
+  gui_setup();
   setTimeout(
     function() {
-      gui_setup();
-      update();
-    }, 3000);
-  // set visibility
-  setTimeout(
-    function() {
-      svg.attr('visibility', 'visible');
-    }, 5000)
+      reset(default_artist)
+    }, 1000)
+  // get_artist_id(default_artist, build_data_graph, {depth: default_depth});
+  // setTimeout(
+  //   function() {
+  //     gui_setup();
+  //     update();
+  //   }, 3000);
+  // // set visibility
+  // setTimeout(
+  //   function() {
+  //     svg.attr('visibility', 'visible');
+  //   }, 5000)
 }
 
 function keyPressEvent(e) {
@@ -132,7 +138,16 @@ function keyPressEvent(e) {
 }
 
 function reset(artist) {
-  svg.attr('visibility', 'hidden');
+  svg.style('opacity', '0.0');
+  d3.select('#loading-icon').append('img')
+    .attr('src', 'puff.svg')
+    .attr('width', '100')
+    .attr('alt', '')
+    .style('opacity', '0.0')
+    .style('margin-top', '200px')
+    .transition()
+      .duration(1000)
+      .style('opacity', '1.0')
   // reset data objects
   node_data = [];
   link_data = [];
@@ -148,7 +163,11 @@ function reset(artist) {
   // set visibility
   setTimeout(
     function() {
-      svg.attr('visibility', 'visible');
+      d3.select('#loading-icon').selectAll('img')
+      .transition()
+        .duration(400)
+        .style('opacity', '0.0').remove()
+      svg.transition().delay(1000).duration(400).style('opacity', '1.0');
     }, 5000)
 }
 
@@ -182,8 +201,8 @@ function build_data_graph(center_artist_id, args) {
   load_first_artist(center_artist_id);
   load_related_artists(center_artist_id, depth, 0, width/2, height/2);
   // HACK: use a timeout to ensure that all the data is loaded.
-  setTimeout(function() {console.log(node_data)}, 3000)
-  setTimeout(function() {console.log(link_data)}, 3000)
+  // setTimeout(function() {console.log(node_data)}, 3000)
+  // setTimeout(function() {console.log(link_data)}, 3000)
 }
 
 /*
@@ -195,7 +214,7 @@ function load_first_artist(artist_id) {
   s.getArtist(artist_id, function (err, data) {
       if (err) { console.error(err); }
       var idx = node_data.length;
-      console.log(data);
+      // console.log(data);
       image_index_to_load = 2; // index to grab image url from
       if (data.images.length < 3) {
         image_index_to_load = 0; // just in case the low res version is not present
@@ -351,7 +370,7 @@ function gui_setup() {
         }))
     .append("g")
   // hide til we're done
-  svg.attr('visibility', 'hidden');
+  svg.attr('opacity', '0.0');
 
   //svg = svg.append("g")
   txt_filter = svg.append("defs")
@@ -478,7 +497,10 @@ function update() {
                                                 .attr("height", depth_to_radius(d.depth) * 2);})
 
   node_graphics_objects = svg.selectAll(".svg-node-container")
-                  .on("click", function(d) {reset(d.name)})
+                  .on("click", function(d) {
+                    document.getElementById("artist_searchbar").value = d.name
+                    reset(d.name)
+                  })
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)

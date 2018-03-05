@@ -90,3 +90,7 @@ input[type=text] {
 .svg-node-container:hover .nametext {
   opacity: 1.0;
 }
+
+.centered {
+  margin-top: 20%;
+}
