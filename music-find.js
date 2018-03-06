@@ -143,15 +143,18 @@ function keyPressEvent(e) {
 
 function reset(artist) {
   svg.style('opacity', '0.0');
-  d3.select('#loading-icon').append('img')
-    .attr('src', 'puff.svg')
-    .attr('width', '100')
-    .attr('alt', '')
-    .style('opacity', '0.0')
-    .style('margin-top', '200px')
-    .transition()
-      .duration(1000)
-      .style('opacity', '1.0')
+  if (!document.getElementById('loading-icon-image')) { // don't add twice on accident
+    d3.select('#loading-icon').append('img')
+      .attr('id', 'loading-icon-image')
+      .attr('src', 'puff.svg')
+      .attr('width', '100')
+      .attr('alt', '')
+      .style('opacity', '0.0')
+      .style('margin-top', '200px')
+      .transition()
+        .duration(1000)
+        .style('opacity', '1.0')
+  }
   // reset data objects
   node_data = [];
   link_data = [];
