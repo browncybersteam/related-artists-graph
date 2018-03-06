@@ -365,6 +365,7 @@ function gui_setup() {
     .attr('width', width)
     .attr('height', height)
     .call(d3.zoom()
+      .scaleExtent([1 / 3, 6])
       .on("zoom", function () {
           svg.attr("transform", d3.event.transform)
         }))
