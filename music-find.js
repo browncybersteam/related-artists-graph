@@ -10,31 +10,35 @@
 // our instance of the Spotify API wrapper
 s = new SpotifyWebApi();
 // our client Authorization
-auth = "47c6369ae4194f96a070658bc5471db5:785b8c682d1d434e82a9103dc988d165";
+// auth = "47c6369ae4194f96a070658bc5471db5:785b8c682d1d434e82a9103dc988d165";
 
 // Get the API token to actually be allowed to make requests to the API. This
 // is where our "Client ID" and "Client Secret" come in.
-$.ajax({
-    type: "POST",
-    url: "https://accounts.spotify.com/api/token",
-    xhrFields: {
-        withCredentials: false
-    },
-    headers: {
-        'Authorization': 'Basic ' + btoa(auth),
-    },
-    data: {
-        grant_type: 'client_credentials'
-    },
-    success: function(data, status) {
-        s.setAccessToken(data.access_token);
-        main();
-    },
-    error: function(request, status, error) {
-        console.log(request.responseText);
-        console.log(error);
-    }
-});
+// $.ajax({
+//     type: "POST",
+//     url: "https://accounts.spotify.com/api/token",
+//     xhrFields: {
+//         withCredentials: false
+//     },
+//     headers: {
+//         'Authorization': 'Basic ' + btoa(auth),
+//     },
+//     data: {
+//         grant_type: 'client_credentials'
+//     },
+//     success: function(data, status) {
+//         console.log(data.access_token)
+//         s.setAccessToken(data.access_token);
+//         main();
+//     },
+//     error: function(request, status, error) {
+//         console.log(request.responseText);
+//         console.log(error);
+//     }
+// });
+
+s.setAccessToken("BQBvoZToFhXYhP7zMixb-PAMuO1u_PaQE1Y9OgaAwVwtxbT-65W0IWN2M3nlSY9AE3tmWlVAlSMs_OjhAmY")
+$(document).ready(main);
 
 /******************************************************************************/
 /********************************* END SETUP **********************************/
