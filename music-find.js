@@ -16,7 +16,7 @@ if (window.location.href.indexOf("access_token") !== -1) {
   // we've been redirected already, so we have a token
   access_token = window.location.href.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
   s.setAccessToken(access_token);
-  main();
+  $(document).ready(main;
 } else {
   // redirect to implicit grant authorization site
   window.location.href = 'https://accounts.spotify.com/authorize?client_id=47c6369ae4194f96a070658bc5471db5&redirect_uri=https%3A%2F%2Fbrowncybersteam.github.io%2Frelated-artists-graph%2Fmusic-find.html&response_type=token&state=123'
