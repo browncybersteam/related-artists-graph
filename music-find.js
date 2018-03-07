@@ -37,8 +37,37 @@ s = new SpotifyWebApi();
 //     }
 // });
 
-s.setAccessToken("BQBvoZToFhXYhP7zMixb-PAMuO1u_PaQE1Y9OgaAwVwtxbT-65W0IWN2M3nlSY9AE3tmWlVAlSMs_OjhAmY")
-$(document).ready(main);
+// s.setAccessToken("BQBvoZToFhXYhP7zMixb-PAMuO1u_PaQE1Y9OgaAwVwtxbT-65W0IWN2M3nlSY9AE3tmWlVAlSMs_OjhAmY")
+// $(document).ready(main);
+
+// $.ajax({
+//     type: "GET",
+//     url: "https://accounts.spotify.com/authorize",
+//     data: {
+//         client_id: '47c6369ae4194f96a070658bc5471db5',
+//         response_type: 'token',
+//         redirect_uri: 'http://www.nyan.cat/'
+//     },
+//     success: function(data, status) {
+//         console.log(data.access_token)
+//         s.setAccessToken(data.access_token);
+//         main();
+//     },
+//     error: function(request, status, error) {
+//         console.log(request.responseText);
+//         console.log(error);
+//     }
+// });
+
+if (window.location.href.contains("acccess_token")) {
+  // we've been redirected already, so we have a token
+  access_token = window.location.href.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
+  s.setAccessToken(access_token);
+  main();
+} else {
+  // redirect to implicit grant authorization site
+  window.location.href = 'https://accounts.spotify.com/authorize?client_id=47c6369ae4194f96a070658bc5471db5&redirect_uri=https%3A%2F%2Fbrowncybersteam.github.io%2F&response_type=token&state=123'
+}
 
 /******************************************************************************/
 /********************************* END SETUP **********************************/
