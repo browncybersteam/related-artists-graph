@@ -12,7 +12,7 @@ s = new SpotifyWebApi();
 // our client id
 client_id = "47c6369ae4194f96a070658bc5471db5";
 
-if (window.location.href.contains("acccess_token")) {
+if (window.location.href.indexOf("acccess_token") !== -1) {
   // we've been redirected already, so we have a token
   access_token = window.location.href.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
   s.setAccessToken(access_token);
