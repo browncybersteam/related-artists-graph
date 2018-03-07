@@ -9,6 +9,7 @@
 
 // our instance of the Spotify API wrapper
 s = new SpotifyWebApi();
+
 // our client id
 client_id = "47c6369ae4194f96a070658bc5471db5";
 
@@ -101,20 +102,13 @@ function main() {
   setTimeout(
     function() {
       reset(default_artist)
-    }, 1000)
-  // get_artist_id(default_artist, build_data_graph, {depth: default_depth});
-  // setTimeout(
-  //   function() {
-  //     gui_setup();
-  //     update();
-  //   }, 3000);
-  // // set visibility
-  // setTimeout(
-  //   function() {
-  //     svg.attr('visibility', 'visible');
-  //   }, 5000)
+  }, 1000)
 }
 
+/*
+ * Handler for search bar.
+ * @param e: a key event
+ */
 function keyPressEvent(e) {
   if(e.key === "Enter") {
       document.getElementById('artist_searchbar').blur();
@@ -123,6 +117,11 @@ function keyPressEvent(e) {
   }
 }
 
+/*
+ * Hides the svg container for the graph and reloads the data structures with
+ * related artist info for artist query passed in.
+ * @param artist: a string, the artist query to search for
+ */
 function reset(artist) {
   svg.style('opacity', '0.0');
   if (!document.getElementById('loading-icon-image')) { // don't add twice on accident
@@ -189,9 +188,6 @@ function build_data_graph(center_artist_id, args) {
   // the related artists
   load_first_artist(center_artist_id);
   load_related_artists(center_artist_id, depth, 0, width/2, height/2);
-  // HACK: use a timeout to ensure that all the data is loaded.
-  // setTimeout(function() {console.log(node_data)}, 3000)
-  // setTimeout(function() {console.log(link_data)}, 3000)
 }
 
 /*
@@ -333,14 +329,13 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 
 var repulsive_force_strength = -100 // strength of repulsive force
 
-var svg; // svg selection holder
-var defs; // for the image resources for the nodes
-var simulation; // d3 force simulation object
-var link_graphics_objects; // document objects for links
-var node_graphics_objects; // document objects for nodes
-var labels;
-var image_objs;
-var text_objs;
+var svg;                    // svg selection holder
+var defs;                   // for the image resources for the nodes
+var simulation;             // d3 force simulation object
+var link_graphics_objects;  // document objects for links
+var node_graphics_objects;  // document objects for nodes
+var image_objs;             // document objects for node images
+var text_objs;              // document objects for text
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
