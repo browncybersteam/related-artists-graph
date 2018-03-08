@@ -93,7 +93,8 @@ tips = ['click an artist to center them on the map.',
       'click anywhere on the screen and drag to explore the map.',
       'if two artists are connected on the map, it means that Spotify says they\'re related.',
       'if a map is tightly connected, the artists are more interrelated.',
-      'look for distinct clusters branching off an artist to get a sense for the different genres they embody']
+      'look for distinct clusters branching off an artist to get a sense for the different genres they embody',
+      'MusicFind only works on Chrome!']
 
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
