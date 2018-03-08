@@ -82,6 +82,16 @@ height = (window.innerHeight
  || document.documentElement.clientHeight
  || document.body.clientHeight);
 
+/*
+ * Videogame-like tips that are displayed on loading screen.
+ */
+tips = ['click an artist to center them on the map.',
+      'double-click an artist to go to their spotify page.',
+      'grab an artist and drag them around!',
+      'use the search bar to find a specific artist.',
+      'scroll to zoom in and zoom out.',
+      'click anywhere on the screen and drag to explore the map.']
+
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
 /******************************************************************************/
@@ -125,13 +135,21 @@ function keyPressEvent(e) {
 function reset(artist) {
   svg.style('opacity', '0.0');
   if (!document.getElementById('loading-icon-image')) { // don't add twice on accident
-    d3.select('#loading-icon').append('img')
+    icon_container = d3.select('#loading-icon')
+    icon_container.append('img')
       .attr('id', 'loading-icon-image')
+      .attr('class', 'loading')
       .attr('src', 'puff.svg')
       .attr('width', '100')
       .attr('alt', '')
-      .style('opacity', '0.0')
       .style('margin-top', '200px')
+      .transition()
+        .duration(1000)
+        .style('opacity', '1.0')
+    icon_container.append('p')
+      .attr('class', 'hint loading')
+      .text('tip: ' + tips[Math.floor(Math.random() * tips.length)])
+    icon_container.style('opacity', '0.0')
       .transition()
         .duration(1000)
         .style('opacity', '1.0')
@@ -151,10 +169,10 @@ function reset(artist) {
   // set visibility
   setTimeout(
     function() {
-      d3.select('#loading-icon').selectAll('img')
+      d3.select('#loading-icon')
       .transition()
         .duration(400)
-        .style('opacity', '0.0').remove()
+        .style('opacity', '0.0').selectAll('.loading').remove()
       svg.transition().delay(1000).duration(400).style('opacity', '1.0');
     }, 5000)
 }
