@@ -86,11 +86,14 @@ height = (window.innerHeight
  * Videogame-like tips that are displayed on loading screen.
  */
 tips = ['click an artist to center them on the map.',
-      'double-click an artist to go to their spotify page.',
+      'double-click an artist to go to their Spotify page.',
       'grab an artist and drag them around!',
       'use the search bar to find a specific artist.',
       'scroll to zoom in and zoom out.',
-      'click anywhere on the screen and drag to explore the map.']
+      'click anywhere on the screen and drag to explore the map.',
+      'if two artists are connected on the map, it means that Spotify says they\'re related.',
+      'if a map is tightly connected, the artists are more interrelated.',
+      'look for distinct clusters branching off an artist to get a sense for the different genres they embody']
 
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
