@@ -413,34 +413,6 @@ function update() {
             .append("g")
             .attr("class", "svg-node-container")
             .attr("id", function(d) { return d.id })
-            .on("mousemove", function(d) {d3.select(this)
-                                              .move_to_front()
-                                              .transition()
-                                                .duration(50)
-                                                .attr("transform", "translate(" +
-                                                (d.x - 50) + ", " +
-                                                (d.y - 50) + ")")
-                                                .attr("width", "100")
-                                                .attr("height", "100")
-                                          d3.select("#img-" + d.id)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", "100")
-                                                .attr("height", "100")})
-            .on("mouseout", function(d) {d3.select(this)
-                                              .move_to_front()
-                                              .transition()
-                                                .duration(50)
-                                                .attr("transform", "translate(" +
-                                                (d.x - depth_to_radius(d.depth)) + ", " +
-                                                (d.y - depth_to_radius(d.depth)) + ")")
-                                                .attr("width", depth_to_radius(d.depth) * 2)
-                                                .attr("height", depth_to_radius(d.depth) * 2)
-                                          d3.select("#img-" + d.id)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", depth_to_radius(d.depth) * 2)
-                                                .attr("height", depth_to_radius(d.depth) * 2)})
 
   text_objs = node_groups
             .append("text")
@@ -486,10 +458,39 @@ function update() {
                     document.getElementById("artist_searchbar").value = d.name
                     reset(d.name)
                   })
+                  .on("mousemove", function(d) {d3.select(this)
+                                                    .move_to_front()
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("transform", "translate(" +
+                                                      (d.x - 50) + ", " +
+                                                      (d.y - 50) + ")")
+                                                      .attr("width", "100")
+                                                      .attr("height", "100")
+                                                d3.select("#img-" + d.id)
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("width", "100")
+                                                      .attr("height", "100")})
+                  .on("mouseout", function(d) {d3.select(this)
+                                                    .move_to_front()
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("transform", "translate(" +
+                                                      (d.x - depth_to_radius(d.depth)) + ", " +
+                                                      (d.y - depth_to_radius(d.depth)) + ")")
+                                                      .attr("width", depth_to_radius(d.depth) * 2)
+                                                      .attr("height", depth_to_radius(d.depth) * 2)
+                                                d3.select("#img-" + d.id)
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("width", depth_to_radius(d.depth) * 2)
+                                                      .attr("height", depth_to_radius(d.depth) * 2)})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
-                    .on("end", dragended));
+                    .on("end", dragended))
+
 
   simulation.alphaTarget(0.3).restart();
 
