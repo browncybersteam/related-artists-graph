@@ -98,3 +98,8 @@ input[type=text] {
 .centered {
   margin-top: 20%;
 }
+
+.hint {
+  font-family: 'Oxygen', sans-serif;
+  color: #697480;
+}

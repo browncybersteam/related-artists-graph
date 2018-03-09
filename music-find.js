@@ -9,6 +9,7 @@
 
 // our instance of the Spotify API wrapper
 s = new SpotifyWebApi();
+
 // our client id
 client_id = "47c6369ae4194f96a070658bc5471db5";
 
@@ -81,6 +82,20 @@ height = (window.innerHeight
  || document.documentElement.clientHeight
  || document.body.clientHeight);
 
+/*
+ * Videogame-like tips that are displayed on loading screen.
+ */
+tips = ['click an artist to center them on the map.',
+      'double-click an artist to go to their Spotify page.',
+      'grab an artist and drag them around!',
+      'use the search bar to find a specific artist.',
+      'scroll to zoom in and zoom out.',
+      'click anywhere on the screen and drag to explore the map.',
+      'if two artists are connected on the map, it means that Spotify says they\'re related.',
+      'if a map is tightly connected, the artists are more interrelated.',
+      'look for distinct clusters branching off an artist to get a sense for the different genres they embody',
+      'MusicFind only works on Chrome!']
+
 /******************************************************************************/
 /******************************* DECLARATIONS *********************************/
 /******************************************************************************/
@@ -101,20 +116,13 @@ function main() {
   setTimeout(
     function() {
       reset(default_artist)
-    }, 1000)
-  // get_artist_id(default_artist, build_data_graph, {depth: default_depth});
-  // setTimeout(
-  //   function() {
-  //     gui_setup();
-  //     update();
-  //   }, 3000);
-  // // set visibility
-  // setTimeout(
-  //   function() {
-  //     svg.attr('visibility', 'visible');
-  //   }, 5000)
+  }, 1000)
 }
 
+/*
+ * Handler for search bar.
+ * @param e: a key event
+ */
 function keyPressEvent(e) {
   if(e.key === "Enter") {
       document.getElementById('artist_searchbar').blur();
@@ -123,16 +131,29 @@ function keyPressEvent(e) {
   }
 }
 
+/*
+ * Hides the svg container for the graph and reloads the data structures with
+ * related artist info for artist query passed in.
+ * @param artist: a string, the artist query to search for
+ */
 function reset(artist) {
   svg.style('opacity', '0.0');
   if (!document.getElementById('loading-icon-image')) { // don't add twice on accident
-    d3.select('#loading-icon').append('img')
+    icon_container = d3.select('#loading-icon')
+    icon_container.append('img')
       .attr('id', 'loading-icon-image')
+      .attr('class', 'loading')
       .attr('src', 'puff.svg')
       .attr('width', '100')
       .attr('alt', '')
-      .style('opacity', '0.0')
       .style('margin-top', '200px')
+      .transition()
+        .duration(1000)
+        .style('opacity', '1.0')
+    icon_container.append('p')
+      .attr('class', 'hint loading')
+      .text('tip: ' + tips[Math.floor(Math.random() * tips.length)])
+    icon_container.style('opacity', '0.0')
       .transition()
         .duration(1000)
         .style('opacity', '1.0')
@@ -152,10 +173,10 @@ function reset(artist) {
   // set visibility
   setTimeout(
     function() {
-      d3.select('#loading-icon').selectAll('img')
+      d3.select('#loading-icon')
       .transition()
         .duration(400)
-        .style('opacity', '0.0').remove()
+        .style('opacity', '0.0').selectAll('.loading').remove()
       svg.transition().delay(1000).duration(400).style('opacity', '1.0');
     }, 5000)
 }
@@ -189,9 +210,6 @@ function build_data_graph(center_artist_id, args) {
   // the related artists
   load_first_artist(center_artist_id);
   load_related_artists(center_artist_id, depth, 0, width/2, height/2);
-  // HACK: use a timeout to ensure that all the data is loaded.
-  // setTimeout(function() {console.log(node_data)}, 3000)
-  // setTimeout(function() {console.log(link_data)}, 3000)
 }
 
 /*
@@ -333,14 +351,13 @@ function calc_child_y_position(parent_y, i, num_steps, depth) {
 
 var repulsive_force_strength = -100 // strength of repulsive force
 
-var svg; // svg selection holder
-var defs; // for the image resources for the nodes
-var simulation; // d3 force simulation object
-var link_graphics_objects; // document objects for links
-var node_graphics_objects; // document objects for nodes
-var labels;
-var image_objs;
-var text_objs;
+var svg;                    // svg selection holder
+var defs;                   // for the image resources for the nodes
+var simulation;             // d3 force simulation object
+var link_graphics_objects;  // document objects for links
+var node_graphics_objects;  // document objects for nodes
+var image_objs;             // document objects for node images
+var text_objs;              // document objects for text
 
 function gui_setup() {
   // a function we'll be using for mouseover functionality
@@ -418,34 +435,6 @@ function update() {
             .append("g")
             .attr("class", "svg-node-container")
             .attr("id", function(d) { return d.id })
-            .on("mousemove", function(d) {d3.select(this)
-                                              .move_to_front()
-                                              .transition()
-                                                .duration(50)
-                                                .attr("transform", "translate(" +
-                                                (d.x - 50) + ", " +
-                                                (d.y - 50) + ")")
-                                                .attr("width", "100")
-                                                .attr("height", "100")
-                                          d3.select("#img-" + d.id)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", "100")
-                                                .attr("height", "100")})
-            .on("mouseout", function(d) {d3.select(this)
-                                              .move_to_front()
-                                              .transition()
-                                                .duration(50)
-                                                .attr("transform", "translate(" +
-                                                (d.x - depth_to_radius(d.depth)) + ", " +
-                                                (d.y - depth_to_radius(d.depth)) + ")")
-                                                .attr("width", depth_to_radius(d.depth) * 2)
-                                                .attr("height", depth_to_radius(d.depth) * 2)
-                                          d3.select("#img-" + d.id)
-                                              .transition()
-                                                .duration(50)
-                                                .attr("width", depth_to_radius(d.depth) * 2)
-                                                .attr("height", depth_to_radius(d.depth) * 2)})
 
   text_objs = node_groups
             .append("text")
@@ -491,10 +480,42 @@ function update() {
                     document.getElementById("artist_searchbar").value = d.name
                     reset(d.name)
                   })
+                  .on("dblclick", function(d) {
+                    navigate_to_url(d.spotify_url);
+                  })
+                  .on("mousemove", function(d) {d3.select(this)
+                                                    .move_to_front()
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("transform", "translate(" +
+                                                      (d.x - 50) + ", " +
+                                                      (d.y - 50) + ")")
+                                                      .attr("width", "100")
+                                                      .attr("height", "100")
+                                                d3.select("#img-" + d.id)
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("width", "100")
+                                                      .attr("height", "100")})
+                  .on("mouseout", function(d) {d3.select(this)
+                                                    .move_to_front()
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("transform", "translate(" +
+                                                      (d.x - depth_to_radius(d.depth)) + ", " +
+                                                      (d.y - depth_to_radius(d.depth)) + ")")
+                                                      .attr("width", depth_to_radius(d.depth) * 2)
+                                                      .attr("height", depth_to_radius(d.depth) * 2)
+                                                d3.select("#img-" + d.id)
+                                                    .transition()
+                                                      .duration(50)
+                                                      .attr("width", depth_to_radius(d.depth) * 2)
+                                                      .attr("height", depth_to_radius(d.depth) * 2)})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
-                    .on("end", dragended));
+                    .on("end", dragended))
+
 
   simulation.alphaTarget(0.3).restart();
 
