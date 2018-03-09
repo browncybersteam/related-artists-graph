@@ -27,6 +27,7 @@
 	padding-left: 30%;
 	padding-top: 1.2%;
 	padding-bottom: 1.2%;
+	text-align: center; 
 }
 
 input[type=text] {
@@ -44,6 +45,9 @@ input[type=text] {
     border-radius: 4px;
 }
 
+.steam {
+	 padding: 25px 10px;
+}
 #tooltip {
     font-size: 10pt;
     font-weight: 900;
