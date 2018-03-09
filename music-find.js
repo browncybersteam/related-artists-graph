@@ -480,6 +480,9 @@ function update() {
                     document.getElementById("artist_searchbar").value = d.name
                     reset(d.name)
                   })
+                  .on("dblclick", function(d) {
+                    navigate_to_url(d.spotify_url);
+                  })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
                                                     .transition()
