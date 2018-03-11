@@ -476,12 +476,13 @@ function update() {
                                                 .attr("height", depth_to_radius(d.depth) * 2);})
 
   node_graphics_objects = svg.selectAll(".svg-node-container")
+                  .on("dblclick", function(d) {
+                    console.log("double clicked");
+                    navigate_to_url(d.spotify_url);
+                  })
                   .on("click", function(d) {
                     document.getElementById("artist_searchbar").value = d.name
                     reset(d.name)
-                  })
-                  .on("dblclick", function(d) {
-                    navigate_to_url(d.spotify_url);
                   })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
