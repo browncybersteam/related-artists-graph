@@ -165,7 +165,6 @@ function reset(artist) {
   console.log(artist);
   // fetch new data
   err = get_artist_id(artist, build_data_graph, {depth: default_depth});
-  console.log(err);
   // update visualization
   setTimeout(
     function() {
@@ -179,7 +178,7 @@ function reset(artist) {
         .duration(400)
         .style('opacity', '0.0').selectAll('.loading').remove()
       svg.transition().delay(1000).duration(400).style('opacity', '1.0');
-  }, 5000);
+    }, 5000);
   if(err == 1) { 
     alert("Artist not found");
   }
