@@ -490,7 +490,7 @@ function update() {
                         reset(d.name)
                       }
                       dblclick = false;
-                    }, 100);
+                    }, 300);
                     console.log(dblclick)
                   })
                   .on("mousemove", function(d) {d3.select(this)
