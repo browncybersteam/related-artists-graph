@@ -484,8 +484,8 @@ function update() {
                   })
                   .on("click", function(d) {
                     //console.log(d3.event)
-                    setTimeout(function() {}, 100);
-                    //console.log(d3.event)
+                    setTimeout(function() {}, 300);
+                    console.log(dblclick)
                     if(!dblclick) {
                       document.getElementById("artist_searchbar").value = d.name
                       reset(d.name)
