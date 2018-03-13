@@ -169,22 +169,22 @@ function reset(artist) {
     if(err == 1) { 
       alert("Artist not found");
     }
+    // update visualization
+    setTimeout(
+      function() {
+        update();
+      }, 3000);
+    // set visibility
+    setTimeout(
+      function() {
+        d3.select('#loading-icon')
+        .transition()
+          .duration(400)
+          .style('opacity', '0.0').selectAll('.loading').remove()
+        svg.transition().delay(1000).duration(400).style('opacity', '1.0');
+      }, 5000);
   }, 100);
   if(err == 1) { return; }
-  // update visualization
-  setTimeout(
-    function() {
-      update();
-    }, 3000);
-  // set visibility
-  setTimeout(
-    function() {
-      d3.select('#loading-icon')
-      .transition()
-        .duration(400)
-        .style('opacity', '0.0').selectAll('.loading').remove()
-      svg.transition().delay(1000).duration(400).style('opacity', '1.0');
-    }, 5000)
 }
 
 /******************************************************************************/
