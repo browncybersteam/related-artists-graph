@@ -164,21 +164,23 @@ function reset(artist) {
   artists_already_added = new Set();
   console.log(artist);
   // fetch new data
-  get_artist_id(artist, build_data_graph, {depth: default_depth});
-  // update visualization
-  setTimeout(
-    function() {
-      update();
-    }, 3000);
-  // set visibility
-  setTimeout(
-    function() {
-      d3.select('#loading-icon')
-      .transition()
-        .duration(400)
-        .style('opacity', '0.0').selectAll('.loading').remove()
-      svg.transition().delay(1000).duration(400).style('opacity', '1.0');
-    }, 5000)
+  err = get_artist_id(artist, build_data_graph, {depth: default_depth});
+  if(err == 0) {}
+    // update visualization
+    setTimeout(
+      function() {
+        update();
+      }, 3000);
+    // set visibility
+    setTimeout(
+      function() {
+        d3.select('#loading-icon')
+        .transition()
+          .duration(400)
+          .style('opacity', '0.0').selectAll('.loading').remove()
+        svg.transition().delay(1000).duration(400).style('opacity', '1.0');
+      }, 5000)
+  }
 }
 
 /******************************************************************************/
@@ -309,13 +311,18 @@ function load_related_artists(parent_artist_id, max_depth,
  */
 function get_artist_id(artist_name, callback, args) {
     s.searchArtists(artist_name, {}, function(err, data) {
-        if (err) { console.error(err); }
+        if (err) { 
+          console.error(err); 
+          return 1;
+        }
         else { 
           console.log(data)
           if(data.artists.items.length == 0) {
             alert("Artist not found");
+            return 1;
           } else {
-            callback(data.artists.items[0].id, args); 
+            callback(data.artists.items[0].id, args);
+            return 0 
           }
         }
     });
