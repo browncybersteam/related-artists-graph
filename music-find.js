@@ -179,9 +179,9 @@ function reset(artist) {
         .style('opacity', '0.0').selectAll('.loading').remove()
       svg.transition().delay(1000).duration(400).style('opacity', '1.0');
     }, 5000);
-  
+
   setTimeout(function () {
-    if(err == 1) { 
+    if(err == 1) {
       alert("Artist not found");
     }
   }, 5100);
@@ -315,17 +315,19 @@ function load_related_artists(parent_artist_id, max_depth,
  */
 function get_artist_id(artist_name, callback, args) {
     s.searchArtists(artist_name, {}, function(err, data) {
-        if (err) { 
-          console.error(err); 
+        if (err) {
+          console.error(err);
+          alert("Artist not found");
           return 1;
         }
-        else { 
+        else {
           console.log(data)
           if(data.artists.items.length == 0) {
+            alert("Artist not found");
             return 1;
           } else {
             callback(data.artists.items[0].id, args);
-            return 0 
+            return 0
           }
         }
     });
