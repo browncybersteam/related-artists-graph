@@ -484,13 +484,14 @@ function update() {
                   })
                   .on("click", function(d) {
                     //console.log(d3.event)
-                    setTimeout(function() {}, 300);
+                    setTimeout(function() {
+                      if(!dblclick) {
+                        document.getElementById("artist_searchbar").value = d.name
+                        reset(d.name)
+                      }
+                      dblclick = false;
+                    }, 100);
                     console.log(dblclick)
-                    if(!dblclick) {
-                      document.getElementById("artist_searchbar").value = d.name
-                      reset(d.name)
-                    }
-                    dblclick = false;
                   })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
