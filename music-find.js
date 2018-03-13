@@ -165,29 +165,24 @@ function reset(artist) {
   console.log(artist);
   // fetch new data
   err = get_artist_id(artist, build_data_graph, {depth: default_depth});
-  setTimeout(function () {
-    console.log(err);
-    if(err == 1) { 
-      alert("Artist not found");
-    }
-    // update visualization
-    setTimeout(function () {
-      setTimeout(
-        function() {
-          update();
-        }, 3000);
-      // set visibility
-      setTimeout(
-        function() {
-          d3.select('#loading-icon')
-          .transition()
-            .duration(400)
-            .style('opacity', '0.0').selectAll('.loading').remove()
-          svg.transition().delay(1000).duration(400).style('opacity', '1.0');
-        }, 5000);
-    }, 100);
-  }, 150);
-  if(err == 1) { return; }
+  console.log(err);
+  // update visualization
+  setTimeout(
+    function() {
+      update();
+    }, 3000);
+  // set visibility
+  setTimeout(
+    function() {
+      d3.select('#loading-icon')
+      .transition()
+        .duration(400)
+        .style('opacity', '0.0').selectAll('.loading').remove()
+      svg.transition().delay(1000).duration(400).style('opacity', '1.0');
+  }, 5000);
+  if(err == 1) { 
+    alert("Artist not found");
+  }
 }
 
 /******************************************************************************/
@@ -325,7 +320,6 @@ function get_artist_id(artist_name, callback, args) {
         else { 
           console.log(data)
           if(data.artists.items.length == 0) {
-            console.log("invalid artist")
             return 1;
           } else {
             callback(data.artists.items[0].id, args);
