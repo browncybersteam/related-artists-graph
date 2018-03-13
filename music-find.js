@@ -166,6 +166,7 @@ function reset(artist) {
   // fetch new data
   err = get_artist_id(artist, build_data_graph, {depth: default_depth});
   setTimeout(function () {
+    console.log(err);
     if(err == 1) { 
       alert("Artist not found");
     }
@@ -322,6 +323,7 @@ function get_artist_id(artist_name, callback, args) {
         else { 
           console.log(data)
           if(data.artists.items.length == 0) {
+            console.log("invalid artist")
             return 1;
           } else {
             callback(data.artists.items[0].id, args);
