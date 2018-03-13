@@ -479,11 +479,9 @@ function update() {
                   .on("dblclick", function(d) {
                     dblclick = true;
                     console.log("double clicked");
-                    //console.log(d3.event)
                     navigate_to_url(d.spotify_url);
                   })
                   .on("click", function(d) {
-                    //console.log(d3.event)
                     setTimeout(function() {
                       console.log(dblclick)
                       if(!dblclick) {
