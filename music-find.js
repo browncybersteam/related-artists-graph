@@ -474,7 +474,7 @@ function update() {
                                                 .duration(50)
                                                 .attr("width", depth_to_radius(d.depth) * 2)
                                                 .attr("height", depth_to_radius(d.depth) * 2);})
-  dblclick = false;
+  var dblclick = false;
   node_graphics_objects = svg.selectAll(".svg-node-container")
                   .on("dblclick", function(d) {
                     dblclick = true;
