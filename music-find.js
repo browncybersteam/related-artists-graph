@@ -481,11 +481,11 @@ function update() {
                     console.log(d3.event)
                     navigate_to_url(d.spotify_url);
                   })
-                  .on("click", function(d) {
+                  /*.on("click", function(d) {
                     document.getElementById("artist_searchbar").value = d.name
                     console.log(d3.event)
                     reset(d.name)
-                  })
+                  })*/
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
                                                     .transition()
