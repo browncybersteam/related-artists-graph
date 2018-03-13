@@ -165,7 +165,7 @@ function reset(artist) {
   console.log(artist);
   // fetch new data
   err = get_artist_id(artist, build_data_graph, {depth: default_depth});
-  if(err == 0) {}
+  if(err == 0) {
     // update visualization
     setTimeout(
       function() {
