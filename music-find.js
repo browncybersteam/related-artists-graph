@@ -179,9 +179,12 @@ function reset(artist) {
         .style('opacity', '0.0').selectAll('.loading').remove()
       svg.transition().delay(1000).duration(400).style('opacity', '1.0');
     }, 5000);
-  if(err == 1) { 
-    alert("Artist not found");
-  }
+  
+  setTimeout(function () {
+    if(err == 1) { 
+      alert("Artist not found");
+    }
+  }, 5100);
 }
 
 /******************************************************************************/
