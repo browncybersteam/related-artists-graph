@@ -478,14 +478,16 @@ function update() {
   node_graphics_objects = svg.selectAll(".svg-node-container")
                   .on("dblclick", function(d) {
                     console.log("double clicked");
-                    console.log(d3.event)
+                    //console.log(d3.event)
                     navigate_to_url(d.spotify_url);
                   })
-                  /*.on("click", function(d) {
-                    document.getElementById("artist_searchbar").value = d.name
+                  .on("click", function(d) {
                     console.log(d3.event)
+                    setTimeout(function() {}, 100);
+                    console.log(d3.event)
+                    document.getElementById("artist_searchbar").value = d.name
                     reset(d.name)
-                  })*/
+                  })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
                                                     .transition()
