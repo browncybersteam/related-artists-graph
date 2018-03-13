@@ -474,19 +474,23 @@ function update() {
                                                 .duration(50)
                                                 .attr("width", depth_to_radius(d.depth) * 2)
                                                 .attr("height", depth_to_radius(d.depth) * 2);})
-
+  dblclick = false;
   node_graphics_objects = svg.selectAll(".svg-node-container")
                   .on("dblclick", function(d) {
+                    dblclick = true;
                     console.log("double clicked");
                     //console.log(d3.event)
                     navigate_to_url(d.spotify_url);
                   })
                   .on("click", function(d) {
-                    console.log(d3.event)
+                    //console.log(d3.event)
                     setTimeout(function() {}, 100);
-                    console.log(d3.event)
-                    document.getElementById("artist_searchbar").value = d.name
-                    reset(d.name)
+                    //console.log(d3.event)
+                    if(!dblclick) {
+                      document.getElementById("artist_searchbar").value = d.name
+                      reset(d.name)
+                    }
+                    dblclick = false;
                   })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
