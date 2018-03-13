@@ -374,7 +374,8 @@ function gui_setup() {
       .scaleExtent([1 / 3, 6])
       .on("zoom", function () {
           svg.attr("transform", d3.event.transform)
-        }))
+        })
+      .on("dblclick.zoom", null))
     .append("g")
   // hide til we're done
   svg.attr('opacity', '0.0');
@@ -490,7 +491,7 @@ function update() {
                       }
                       setTimeout(function() {dblclick = false;}, 400);
                     }, 400);
-                    
+
                   })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
