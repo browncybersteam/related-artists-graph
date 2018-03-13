@@ -485,13 +485,14 @@ function update() {
                   .on("click", function(d) {
                     //console.log(d3.event)
                     setTimeout(function() {
+                      console.log(dblclick)
                       if(!dblclick) {
                         document.getElementById("artist_searchbar").value = d.name
                         reset(d.name)
                       }
                       dblclick = false;
-                    }, 300);
-                    console.log(dblclick)
+                    }, 400);
+                    
                   })
                   .on("mousemove", function(d) {d3.select(this)
                                                     .move_to_front()
