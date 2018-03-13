@@ -309,11 +309,15 @@ function load_related_artists(parent_artist_id, max_depth,
  */
 function get_artist_id(artist_name, callback, args) {
     s.searchArtists(artist_name, {}, function(err, data) {
-        if (err) { 
-          console.error(err); 
-          alert("Artist not found");
+        if (err) { console.error(err); }
+        else { 
+          console.log(data)
+          if(data == null) {
+            alert("Artist not found");
+          } else {
+            callback(data.artists.items[0].id, args); 
+          }
         }
-        else { callback(data.artists.items[0].id, args); }
     });
 }
 
