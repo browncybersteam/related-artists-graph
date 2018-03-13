@@ -165,10 +165,12 @@ function reset(artist) {
   console.log(artist);
   // fetch new data
   err = get_artist_id(artist, build_data_graph, {depth: default_depth});
-  if(err == 1) { 
-    alert("Artist not found");
-    return; 
-  }
+  setTimeout(function () {
+    if(err == 1) { 
+      alert("Artist not found");
+    }
+  }, 100);
+  if(err == 1) { return; }
   // update visualization
   setTimeout(
     function() {
