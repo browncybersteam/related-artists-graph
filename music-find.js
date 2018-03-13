@@ -312,7 +312,7 @@ function get_artist_id(artist_name, callback, args) {
         if (err) { console.error(err); }
         else { 
           console.log(data)
-          if(data == null) {
+          if(data.artists.items == []) {
             alert("Artist not found");
           } else {
             callback(data.artists.items[0].id, args); 
