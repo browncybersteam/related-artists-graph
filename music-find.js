@@ -315,7 +315,7 @@ function get_artist_id(artist_name, callback, args) {
         }
         else {
           if(data.artists.items.length == 0) {
-            setTimeout(function () { alert("Artist not found"); }, 5000);
+            setTimeout(function () { alert("Artist not found"); }, 5300);
           } else { callback(data.artists.items[0].id, args); }
         }
     });
